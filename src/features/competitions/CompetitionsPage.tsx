@@ -22,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 import { competitionsApi } from "@/api/competitions";
 import { CompetitionResponseDTO } from "@/types";
 import dayjs from "dayjs";
+import { getErrorMessage } from "@/utils/error";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -69,7 +70,7 @@ export default function CompetitionsPage() {
       setShowCreate(false);
       createForm.resetFields();
     },
-    onError: (err: Error) => void messageApi.error(err.message),
+    onError: (err: unknown) => void messageApi.error(getErrorMessage(err)),
   });
 
   const columns = [

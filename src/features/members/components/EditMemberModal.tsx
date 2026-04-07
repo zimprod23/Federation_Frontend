@@ -14,6 +14,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { membersApi } from "@/api/members";
 import { clubsApi } from "@/api/clubs";
 import { MemberResponseDTO, UpdateMemberDTO, MemberStatus } from "@/types";
+import { getErrorMessage } from "@/utils/error";
 
 const { Option } = Select;
 
@@ -61,7 +62,7 @@ export default function EditMemberModal({
       void messageApi.success(t("common.success"));
       onSuccess();
     },
-    onError: (err: Error) => void messageApi.error(err.message),
+    onError: (err: unknown) => void messageApi.error(getErrorMessage(err)),
   });
 
   return (

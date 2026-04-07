@@ -14,14 +14,22 @@ import {
   Form,
   Input,
   Select,
+  Descriptions,
+  Divider,
 } from "antd";
-import { PlusOutlined, EditOutlined, BankOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  EditOutlined,
+  BankOutlined,
+  EyeOutlined,
+} from "@ant-design/icons";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { clubsApi } from "@/api/clubs";
 import { ClubResponseDTO, ClubStatus, CreateClubDTO } from "@/types";
+import { getErrorMessage } from "@/utils/error";
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 const { Option } = Select;
 
 const STATUS_COLORS: Record<string, string> = {
@@ -46,6 +54,7 @@ export default function ClubsPage() {
   const [page, setPage] = useState(1);
   const [showCreate, setShowCreate] = useState(false);
   const [showStatus, setShowStatus] = useState(false);
+  const [showDetail, setShowDetail] = useState(false);
   const [selectedClub, setSelectedClub] = useState<ClubResponseDTO | null>(
     null,
   );
@@ -66,7 +75,7 @@ export default function ClubsPage() {
       setShowCreate(false);
       createForm.resetFields();
     },
-    onError: (err: Error) => void messageApi.error(err.message),
+    onError: (err: unknown) => void messageApi.error(getErrorMessage(err)),
   });
 
   const statusMutation = useMutation({
@@ -76,10 +85,21 @@ export default function ClubsPage() {
       void queryClient.invalidateQueries({ queryKey: ["clubs"] });
       void messageApi.success(t("common.success"));
       setShowStatus(false);
-      setSelectedClub(null);
+      // Update selectedClub so detail modal reflects new status
+      if (selectedClub) {
+        setSelectedClub({
+          ...selectedClub,
+          status: statusForm.getFieldValue("status") as ClubStatus,
+        });
+      }
     },
-    onError: (err: Error) => void messageApi.error(err.message),
+    onError: (err: unknown) => void messageApi.error(getErrorMessage(err)),
   });
+
+  const openDetailModal = (club: ClubResponseDTO) => {
+    setSelectedClub(club);
+    setShowDetail(true);
+  };
 
   const openStatusModal = (club: ClubResponseDTO) => {
     setSelectedClub(club);
@@ -91,7 +111,7 @@ export default function ClubsPage() {
     {
       title: t("clubs.code"),
       key: "code",
-      width: 120,
+      width: 130,
       render: (_: unknown, r: ClubResponseDTO) => (
         <Space direction="vertical" size={0}>
           <Tag color="geekblue" style={{ fontFamily: "monospace" }}>
@@ -143,15 +163,30 @@ export default function ClubsPage() {
     {
       title: t("common.actions"),
       key: "actions",
-      width: 80,
+      width: 100,
       render: (_: unknown, r: ClubResponseDTO) => (
-        <Tooltip title={t("common.edit")}>
-          <Button
-            type="text"
-            icon={<EditOutlined />}
-            onClick={() => openStatusModal(r)}
-          />
-        </Tooltip>
+        <Space>
+          <Tooltip title={t("common.edit")}>
+            <Button
+              type="text"
+              icon={<EyeOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                openDetailModal(r);
+              }}
+            />
+          </Tooltip>
+          <Tooltip title={t("common.edit")}>
+            <Button
+              type="text"
+              icon={<EditOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                openStatusModal(r);
+              }}
+            />
+          </Tooltip>
+        </Space>
       ),
     },
   ];
@@ -193,11 +228,187 @@ export default function ClubsPage() {
             onChange: setPage,
             showTotal: (total) => `${t("common.total")}: ${total}`,
           }}
+          onRow={(record) => ({
+            onClick: () => openDetailModal(record),
+            style: { cursor: "pointer" },
+          })}
           scroll={{ x: 700 }}
         />
       </Card>
 
-      {/* Create Modal */}
+      {/* ── Club Detail Modal ─────────────────────────────────────────────── */}
+      <Modal
+        open={showDetail}
+        title={
+          <Space>
+            <BankOutlined style={{ color: "#D9AE40" }} />
+            <span>{selectedClub?.name}</span>
+            {selectedClub && (
+              <Tag color={STATUS_COLORS[selectedClub.status]}>
+                {t(`clubs.${selectedClub.status}`)}
+              </Tag>
+            )}
+          </Space>
+        }
+        onCancel={() => {
+          setShowDetail(false);
+          setSelectedClub(null);
+        }}
+        footer={[
+          <Button
+            key="status"
+            icon={<EditOutlined />}
+            onClick={() => {
+              setShowDetail(false);
+              if (selectedClub) openStatusModal(selectedClub);
+            }}
+          >
+            {t("common.edit")} {t("common.status")}
+          </Button>,
+          <Button
+            key="close"
+            type="primary"
+            onClick={() => {
+              setShowDetail(false);
+              setSelectedClub(null);
+            }}
+            style={{ background: "#0D2145" }}
+          >
+            {t("common.cancel")}
+          </Button>,
+        ]}
+        width={600}
+      >
+        {selectedClub && (
+          <>
+            {/* Identity section */}
+            <Descriptions
+              bordered
+              size="small"
+              column={2}
+              style={{ marginBottom: 16 }}
+            >
+              <Descriptions.Item label={t("common.name")} span={2}>
+                <Text strong>{selectedClub.name}</Text>
+              </Descriptions.Item>
+
+              <Descriptions.Item label={t("clubs.code")}>
+                <Tag color="geekblue" style={{ fontFamily: "monospace" }}>
+                  {selectedClub.code}
+                </Tag>
+              </Descriptions.Item>
+
+              <Descriptions.Item label={t("clubs.clubShort")}>
+                <Tag style={{ fontFamily: "monospace" }}>
+                  {selectedClub.clubShort}
+                </Tag>
+              </Descriptions.Item>
+
+              <Descriptions.Item label={t("common.city")}>
+                {selectedClub.city}
+              </Descriptions.Item>
+
+              <Descriptions.Item label={t("common.region")}>
+                {selectedClub.region}
+              </Descriptions.Item>
+
+              <Descriptions.Item label={t("common.status")} span={2}>
+                <Tag color={STATUS_COLORS[selectedClub.status]}>
+                  {t(`clubs.${selectedClub.status}`)}
+                </Tag>
+              </Descriptions.Item>
+            </Descriptions>
+
+            {/* Disciplines */}
+            <Divider style={{ fontSize: 13 }}>{t("clubs.disciplines")}</Divider>
+            <div style={{ marginBottom: 16 }}>
+              {selectedClub.disciplines?.length > 0 ? (
+                <Space wrap>
+                  {selectedClub.disciplines.map((d) => (
+                    <Tag key={d} color="blue">
+                      {d.charAt(0).toUpperCase() + d.slice(1)}
+                    </Tag>
+                  ))}
+                </Space>
+              ) : (
+                <Text type="secondary">—</Text>
+              )}
+            </div>
+
+            {/* President section */}
+            <Divider style={{ fontSize: 13 }}>{t("clubs.president")}</Divider>
+            <Descriptions bordered size="small" column={1}>
+              <Descriptions.Item label={t("common.name")}>
+                {selectedClub.presidentName ?? "—"}
+              </Descriptions.Item>
+              <Descriptions.Item label={t("common.email")}>
+                {selectedClub.presidentEmail ? (
+                  <a href={`mailto:${selectedClub.presidentEmail}`}>
+                    {selectedClub.presidentEmail}
+                  </a>
+                ) : (
+                  "—"
+                )}
+              </Descriptions.Item>
+            </Descriptions>
+
+            {/* License format preview */}
+            <Divider style={{ fontSize: 13 }}>License format</Divider>
+            <div
+              style={{
+                background: "#f5f5f5",
+                borderRadius: 8,
+                padding: "10px 16px",
+                fontFamily: "monospace",
+                fontSize: 15,
+                color: "#0D2145",
+                fontWeight: 600,
+              }}
+            >
+              {selectedClub.code}/{selectedClub.clubShort}001 →{" "}
+              {selectedClub.code}/{selectedClub.clubShort}999
+            </div>
+          </>
+        )}
+      </Modal>
+
+      {/* ── Update Status Modal ───────────────────────────────────────────── */}
+      <Modal
+        open={showStatus}
+        title={`${t("common.edit")} — ${selectedClub?.name}`}
+        onCancel={() => {
+          setShowStatus(false);
+        }}
+        onOk={() => statusForm.submit()}
+        confirmLoading={statusMutation.isPending}
+        okText={t("common.save")}
+        cancelText={t("common.cancel")}
+      >
+        <Form
+          form={statusForm}
+          layout="vertical"
+          onFinish={({ status }) => {
+            if (selectedClub) {
+              statusMutation.mutate({ id: selectedClub.id, status });
+            }
+          }}
+          style={{ marginTop: 16 }}
+        >
+          <Form.Item
+            name="status"
+            label={t("common.status")}
+            rules={[{ required: true }]}
+          >
+            <Select>
+              <Option value="active">{t("clubs.active")}</Option>
+              <Option value="pending">{t("clubs.pending")}</Option>
+              <Option value="suspended">{t("clubs.suspended")}</Option>
+            </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* ── Create Club Modal ─────────────────────────────────────────────── */}
       <Modal
         open={showCreate}
         title={t("clubs.create")}
@@ -301,43 +512,6 @@ export default function ClubsPage() {
                   {d.charAt(0).toUpperCase() + d.slice(1)}
                 </Option>
               ))}
-            </Select>
-          </Form.Item>
-        </Form>
-      </Modal>
-
-      {/* Update Status Modal */}
-      <Modal
-        open={showStatus}
-        title={`${t("common.edit")} — ${selectedClub?.name}`}
-        onCancel={() => {
-          setShowStatus(false);
-          setSelectedClub(null);
-        }}
-        onOk={() => statusForm.submit()}
-        confirmLoading={statusMutation.isPending}
-        okText={t("common.save")}
-        cancelText={t("common.cancel")}
-      >
-        <Form
-          form={statusForm}
-          layout="vertical"
-          onFinish={({ status }) => {
-            if (selectedClub) {
-              statusMutation.mutate({ id: selectedClub.id, status });
-            }
-          }}
-          style={{ marginTop: 16 }}
-        >
-          <Form.Item
-            name="status"
-            label={t("common.status")}
-            rules={[{ required: true }]}
-          >
-            <Select>
-              <Option value="active">{t("clubs.active")}</Option>
-              <Option value="pending">{t("clubs.pending")}</Option>
-              <Option value="suspended">{t("clubs.suspended")}</Option>
             </Select>
           </Form.Item>
         </Form>

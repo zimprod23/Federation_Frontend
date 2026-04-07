@@ -1,10 +1,11 @@
 import { Form, Input, Button, Card, Typography, Alert, Space } from "antd";
-import { UserOutlined, LockOutlined, GlobalOutlined } from "@ant-design/icons";
+import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { authApi } from "@/api";
 import { useAuthStore } from "@/store/authStore";
+import { getErrorMessage } from "@/utils/error";
 import { LoginDTO } from "@/types";
 
 const { Title, Text } = Typography;
@@ -21,11 +22,10 @@ export default function LoginPage() {
   const { setAuth } = useAuthStore();
   const [form] = Form.useForm<LoginDTO>();
 
-  const { mutate, isPending, error } = useMutation({
+  const { mutate, isPending, error, isError } = useMutation({
     mutationFn: authApi.login,
     onSuccess: (data) => {
       setAuth(data.token, data.user);
-      // Redirect based on role
       if (data.user.role === "scanner") {
         navigate("/scanner");
       } else {
@@ -46,7 +46,7 @@ export default function LoginPage() {
       }}
     >
       <div style={{ width: "100%", maxWidth: 400 }}>
-        {/* Logo + title */}
+        {/* Logo + federation name */}
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <div
             style={{
@@ -65,7 +65,7 @@ export default function LoginPage() {
           >
             F
           </div>
-          <Title level={3} style={{ color: "#fff", margin: 0 }}>
+          <Title level={4} style={{ color: "#fff", margin: 0 }}>
             {t("auth.federation")}
           </Title>
         </div>
@@ -76,7 +76,6 @@ export default function LoginPage() {
             {LANGUAGES.map((l) => (
               <Button
                 key={l.key}
-                type={i18n.language === l.key ? "primary" : "text"}
                 size="small"
                 onClick={() => void i18n.changeLanguage(l.key)}
                 style={{
@@ -84,6 +83,8 @@ export default function LoginPage() {
                   background:
                     i18n.language === l.key ? "#D9AE40" : "transparent",
                   borderColor: "#D9AE40",
+                  fontWeight: i18n.language === l.key ? 700 : 400,
+                  minWidth: 36,
                 }}
               >
                 {l.label}
@@ -92,6 +93,7 @@ export default function LoginPage() {
           </Space>
         </div>
 
+        {/* Login card */}
         <Card
           style={{
             borderRadius: 12,
@@ -102,13 +104,15 @@ export default function LoginPage() {
             {t("auth.login")}
           </Title>
 
-          {error && (
+          {/* Error alert */}
+          {isError && (
             <Alert
               message={t("common.error")}
-              description={(error as Error).message}
+              description={getErrorMessage(error)}
               type="error"
               showIcon
-              style={{ marginBottom: 16 }}
+              closable
+              style={{ marginBottom: 16, borderRadius: 8 }}
             />
           )}
 
@@ -117,17 +121,18 @@ export default function LoginPage() {
             layout="vertical"
             onFinish={(values) => mutate(values)}
             size="large"
+            autoComplete="off"
           >
             <Form.Item
               name="email"
               label={t("auth.email")}
               rules={[
                 { required: true, message: t("auth.email") },
-                { type: "email" },
+                { type: "email", message: t("auth.email") },
               ]}
             >
               <Input
-                prefix={<UserOutlined />}
+                prefix={<UserOutlined style={{ color: "#bbb" }} />}
                 placeholder="admin@federation.ma"
               />
             </Form.Item>
@@ -137,10 +142,12 @@ export default function LoginPage() {
               label={t("auth.password")}
               rules={[{ required: true, message: t("auth.password") }]}
             >
-              <Input.Password prefix={<LockOutlined />} />
+              <Input.Password
+                prefix={<LockOutlined style={{ color: "#bbb" }} />}
+              />
             </Form.Item>
 
-            <Form.Item style={{ marginBottom: 0 }}>
+            <Form.Item style={{ marginBottom: 0, marginTop: 8 }}>
               <Button
                 type="primary"
                 htmlType="submit"
@@ -151,6 +158,7 @@ export default function LoginPage() {
                   borderColor: "#0D2145",
                   height: 44,
                   fontWeight: 600,
+                  borderRadius: 8,
                 }}
               >
                 {t("auth.loginButton")}
@@ -158,6 +166,13 @@ export default function LoginPage() {
             </Form.Item>
           </Form>
         </Card>
+
+        {/* Footer */}
+        <div style={{ textAlign: "center", marginTop: 16 }}>
+          <Text style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}>
+            © {new Date().getFullYear()} FNSM
+          </Text>
+        </div>
       </div>
     </div>
   );

@@ -21,6 +21,7 @@ import { useTranslation } from "react-i18next";
 import { membersApi } from "@/api/members";
 import { MemberResponseDTO } from "@/types";
 import dayjs from "dayjs";
+import { getErrorMessage } from "@/utils/error";
 
 const { Text, Title } = Typography;
 
@@ -52,7 +53,7 @@ export default function MemberCardTab({ member }: Props) {
       void queryClient.invalidateQueries({ queryKey: ["card", member.id] });
       void messageApi.success(t("common.success"));
     },
-    onError: (err: Error) => void messageApi.error(err.message),
+    onError: (err: unknown) => void messageApi.error(getErrorMessage(err)),
   });
 
   const onGenerate = (values: {

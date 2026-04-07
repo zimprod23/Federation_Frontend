@@ -31,6 +31,7 @@ import { membersApi } from "@/api/members";
 import { MemberResponseDTO, MemberStatus } from "@/types";
 import { useAuthStore } from "@/store/authStore";
 import CreateMemberModal from "./components/CreateMemberModal";
+import { getErrorMessage } from "@/utils/error";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -89,9 +90,7 @@ export default function MembersPage() {
       void queryClient.invalidateQueries({ queryKey: ["members"] });
       void messageApi.success(t("common.success"));
     },
-    onError: () => {
-      void messageApi.error(t("common.error"));
-    },
+    onError: (err: unknown) => void messageApi.error(getErrorMessage(err)),
   });
 
   const isAdmin =

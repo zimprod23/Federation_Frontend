@@ -33,6 +33,7 @@ import { useAuthStore } from "@/store/authStore";
 import MemberCardTab from "./components/MemberCardTab";
 import EditMemberModal from "./components/EditMemberModal";
 import type { UploadFile } from "antd";
+import { getErrorMessage } from "@/utils/error";
 
 const { Title, Text } = Typography;
 
@@ -66,7 +67,7 @@ export default function MemberDetailPage() {
       void queryClient.invalidateQueries({ queryKey: ["member", id] });
       void messageApi.success(t("common.success"));
     },
-    onError: () => void messageApi.error(t("common.error")),
+    onError: (err: unknown) => void messageApi.error(getErrorMessage(err)),
   });
 
   const isAdmin =
