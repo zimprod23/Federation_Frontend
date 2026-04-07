@@ -22,6 +22,8 @@ import { membersApi } from "@/api/members";
 import { MemberResponseDTO } from "@/types";
 import dayjs from "dayjs";
 import { getErrorMessage } from "@/utils/error";
+import MemberCardDownload from "./MemberCardDownload";
+import { clubsApi } from "@/api";
 
 const { Text, Title } = Typography;
 
@@ -40,6 +42,18 @@ export default function MemberCardTab({ member }: Props) {
     queryFn: () => membersApi.getCard(member.id),
     retry: false,
   });
+
+  const { data: club } = useQuery({
+    queryKey: ["club", member.clubId],
+    queryFn: () => clubsApi.getById(member.clubId!),
+    enabled: !!member.clubId,
+  });
+
+  const isCurrentlyValid =
+    card &&
+    card.isValid &&
+    dayjs().isAfter(dayjs(card.validFrom)) &&
+    dayjs().isBefore(dayjs(card.validUntil));
 
   const generateMutation = useMutation({
     mutationFn: ({
@@ -104,8 +118,8 @@ export default function MemberCardTab({ member }: Props) {
                   <Col span={12}>
                     <Text type="secondary">{t("members.status")}</Text>
                     <div>
-                      <Tag color={card.isValid ? "green" : "red"}>
-                        {card.isValid ? "Valid" : "Invalid"}
+                      <Tag color={isCurrentlyValid ? "green" : "red"}>
+                        {isCurrentlyValid ? "Valid" : "Expired"}
                       </Tag>
                     </div>
                   </Col>
@@ -151,6 +165,13 @@ export default function MemberCardTab({ member }: Props) {
                       </div>
                     </div>
                   </>
+                )}
+                {card && (
+                  <MemberCardDownload
+                    member={member}
+                    card={card}
+                    clubName={club?.name}
+                  />
                 )}
               </Space>
             </Card>

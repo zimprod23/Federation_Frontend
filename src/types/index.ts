@@ -53,6 +53,7 @@ export interface MemberResponseDTO {
   firstName: string;
   lastName: string;
   email: string;
+  dateOfBirth?: string;
   phone?: string;
   cin?: string;
   photoUrl?: string;
