@@ -24,6 +24,8 @@ import dayjs from "dayjs";
 import { getErrorMessage } from "@/utils/error";
 import MemberCardDownload from "./MemberCardDownload";
 import { clubsApi } from "@/api";
+import MemberAttestationDownload from "./MemberAttestationDownload";
+import MemberCardDownloadV2 from "./MemberCardDownloadV2";
 
 const { Text, Title } = Typography;
 
@@ -39,8 +41,9 @@ export default function MemberCardTab({ member }: Props) {
 
   const { data: card, isLoading } = useQuery({
     queryKey: ["card", member.id],
-    queryFn: () => membersApi.getCard(member.id),
+    queryFn: async () => membersApi.getCard(member.id),
     retry: false,
+    staleTime: 0,
   });
 
   const { data: club } = useQuery({
@@ -48,12 +51,36 @@ export default function MemberCardTab({ member }: Props) {
     queryFn: () => clubsApi.getById(member.clubId!),
     enabled: !!member.clubId,
   });
+  const now = dayjs();
+  const from = dayjs(card && card.validFrom);
+  const until = dayjs(card && card.validUntil);
+  type CardStatus = "valid" | "not_yet_valid" | "expired" | "invalidated";
 
-  const isCurrentlyValid =
+  const cardStatus: CardStatus =
+    card && !card.isValid
+      ? "invalidated"
+      : now.isBefore(from)
+        ? "not_yet_valid"
+        : now.isAfter(until)
+          ? "expired"
+          : "valid";
+
+  const STATUS_TAG: Record<CardStatus, { color: string; label: string }> = {
+    valid: { color: "green", label: "Valide" },
+    not_yet_valid: { color: "orange", label: "Pas encore valide" },
+    expired: { color: "red", label: "Expiré" },
+    invalidated: { color: "default", label: "Invalidée" },
+  };
+
+  const tagConfig = STATUS_TAG[cardStatus];
+  const isCurrentlyValid = Boolean(
     card &&
     card.isValid &&
+    card.validFrom &&
+    card.validUntil &&
     dayjs().isAfter(dayjs(card.validFrom)) &&
-    dayjs().isBefore(dayjs(card.validUntil));
+    dayjs().isBefore(dayjs(card.validUntil)),
+  );
 
   const generateMutation = useMutation({
     mutationFn: ({
@@ -118,9 +145,10 @@ export default function MemberCardTab({ member }: Props) {
                   <Col span={12}>
                     <Text type="secondary">{t("members.status")}</Text>
                     <div>
-                      <Tag color={isCurrentlyValid ? "green" : "red"}>
+                      {/* <Tag color={isCurrentlyValid ? "green" : "red"}>
                         {isCurrentlyValid ? "Valid" : "Expired"}
-                      </Tag>
+                      </Tag> */}
+                      <Tag color={tagConfig.color}>{tagConfig.label}</Tag>
                     </div>
                   </Col>
                 </Row>
@@ -167,11 +195,18 @@ export default function MemberCardTab({ member }: Props) {
                   </>
                 )}
                 {card && (
-                  <MemberCardDownload
-                    member={member}
-                    card={card}
-                    clubName={club?.name}
-                  />
+                  <>
+                    <MemberCardDownloadV2
+                      member={member}
+                      card={card}
+                      clubName={club?.name ?? ""}
+                    />
+                    <MemberAttestationDownload
+                      member={member}
+                      card={card}
+                      clubName={club?.name ?? club?.code ?? "CLUB SANS NOM"}
+                    />
+                  </>
                 )}
               </Space>
             </Card>

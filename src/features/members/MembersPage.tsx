@@ -72,7 +72,6 @@ export default function MembersPage() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Update the query to use debouncedSearch
   const { data, isLoading } = useQuery({
     queryKey: ["members", page, debouncedSearch, status, category],
     queryFn: () =>
@@ -84,6 +83,7 @@ export default function MembersPage() {
         category: category || undefined,
       }),
   });
+
   const deleteMutation = useMutation({
     mutationFn: membersApi.delete,
     onSuccess: () => {
@@ -137,7 +137,9 @@ export default function MembersPage() {
       key: "category",
       render: (_: unknown, r: MemberResponseDTO) => (
         <Space>
-          <Tag color={CATEGORY_COLORS[r.category]}>
+          <Tag
+            color={CATEGORY_COLORS[r.category as keyof typeof CATEGORY_COLORS]}
+          >
             {t(`members.${r.category}`)}
           </Tag>
           <Tag>
@@ -163,7 +165,7 @@ export default function MembersPage() {
       key: "actions",
       width: 120,
       render: (_: unknown, r: MemberResponseDTO) => (
-        <Space>
+        <Space onClick={(e) => e.stopPropagation()}>
           <Tooltip title={t("common.edit")}>
             <Button
               type="text"
@@ -198,7 +200,6 @@ export default function MembersPage() {
   return (
     <>
       {contextHolder}
-
       <div style={{ marginBottom: 24 }}>
         <Row justify="space-between" align="middle">
           <Col>
@@ -221,7 +222,6 @@ export default function MembersPage() {
         </Row>
       </div>
 
-      {/* Filters */}
       <Card style={{ marginBottom: 16, borderRadius: 12 }}>
         <Row gutter={[12, 12]}>
           <Col xs={24} sm={10}>
@@ -274,7 +274,6 @@ export default function MembersPage() {
         </Row>
       </Card>
 
-      {/* Table */}
       <Card style={{ borderRadius: 12 }}>
         <Table
           dataSource={data?.items ?? []}

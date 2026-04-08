@@ -13,10 +13,9 @@ import {
   Spin,
   Row,
   Col,
-  Popconfirm,
+  Image,
 } from "antd";
 import { toProxyUrl } from "@/utils/image";
-import { Image } from "antd";
 import {
   ArrowLeftOutlined,
   UserOutlined,
@@ -32,10 +31,9 @@ import { MemberStatus } from "@/types";
 import { useAuthStore } from "@/store/authStore";
 import MemberCardTab from "./components/MemberCardTab";
 import EditMemberModal from "./components/EditMemberModal";
-import type { UploadFile } from "antd";
 import { getErrorMessage } from "@/utils/error";
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const STATUS_COLORS: Record<MemberStatus, string> = {
   active: "green",
@@ -46,13 +44,15 @@ const STATUS_COLORS: Record<MemberStatus, string> = {
 
 export default function MemberDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
   const [messageApi, contextHolder] = message.useMessage();
   const [showEdit, setShowEdit] = useState(false);
+
+  // Sync tab with URL
   const activeTab = searchParams.get("tab") ?? "info";
 
   const { data: member, isLoading } = useQuery({
@@ -148,8 +148,6 @@ export default function MemberDetailPage() {
   return (
     <>
       {contextHolder}
-
-      {/* Header */}
       <div style={{ marginBottom: 24 }}>
         <Button
           type="text"
@@ -162,44 +160,8 @@ export default function MemberDetailPage() {
 
         <Card style={{ borderRadius: 12 }}>
           <Row gutter={24} align="middle">
-            {/* <Col>
-              <div style={{ position: "relative", display: "inline-block" }}>
-                <Avatar
-                  src={toProxyUrl(member.photoUrl)}
-                  icon={<UserOutlined />}
-                  size={80}
-                  style={{ background: "#0D2145" }}
-                />
-                {isAdmin && (
-                  <Upload
-                    showUploadList={false}
-                    accept="image/*"
-                    beforeUpload={(file) => {
-                      uploadMutation.mutate({ file });
-                      return false;
-                    }}
-                  >
-                    <Button
-                      size="small"
-                      icon={<UploadOutlined />}
-                      style={{
-                        position: "absolute",
-                        bottom: 0,
-                        right: 0,
-                        borderRadius: "50%",
-                        width: 24,
-                        height: 24,
-                        padding: 0,
-                        fontSize: 11,
-                      }}
-                    />
-                  </Upload>
-                )}
-              </div>
-            </Col> */}
             <Col>
               <div style={{ position: "relative", display: "inline-block" }}>
-                {/* Clickable preview wrapper */}
                 <Image
                   src={toProxyUrl(member.photoUrl)}
                   width={80}
@@ -207,23 +169,23 @@ export default function MemberDetailPage() {
                   style={{
                     borderRadius: "50%",
                     objectFit: "cover",
-                    cursor: member.photoUrl ? "pointer" : "default",
                     border: "2px solid #f0f0f0",
                   }}
-                  preview={!!member.photoUrl} // only enable preview if photo exists
-                  fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAYAAACOEfKtAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAJvSURBVHgB7doxbsIwFAbgx6FHQGrFARhgh45l6R06lrEjdGzTqVKlSpWqSlWqUpWqVKVSJSv5JVayTUwc2+/5pCgCO/b7bCfBAREREREREREREREREf2Tcy5jbcUYm7VtBwvuV+9s2/bDqd3KsmxtbXv+sHZZlqcxxsTMN+fcMef8mXNOrYhIBGAEYLMoygdQVS8i6oHEe5cKYAOgWIAH4ACgWEAJ4AGgWEAL4ACgWMAM4AGgWOAM4ACgWOAO4ACgWOAN4ACgWOAP4ACgWOAQ4ACgWOAR4ACgWOAS4ACgWOAT4ACgWOAU4ACgWOAV4ACgWOAW4ACgWOAX4ACgWOAY4ACgWOAZ4ACgWOAa4ACgWOAb4ACgWOAc4ACgWOAd4ACgWOAe4ACgWOAf4ACgWOAg4ACgWOAh4ACgWOAi4ACgWOAj4ACgWOAk4ACgWOAl4ACgWOAm4ACgWOAn4ACgWOAo4ACgWOAp4ACgWOAq4ACgWOAr4ACgWOAs4ACgWOAt4ACgWOAu4ACgWOAv4ACgWOAw4ACgWOAx4ACgWOAy4ACgWOAz4ACgWOA04ACgWOA14ACgWOA24ACgWOA34ACgWOA44ACgWOA54ACgWOA64ACgWOA74ACgWOA84ACgWOA94ACgWOA+4ACgWOA/4ACA"
-                >
-                  {/* Show placeholder avatar when no photo */}
-                  {!member.photoUrl && (
-                    <Avatar
-                      icon={<UserOutlined />}
-                      size={80}
-                      style={{ background: "#0D2145" }}
-                    />
-                  )}
-                </Image>
-
-                {/* Upload button overlay */}
+                  preview={!!member.photoUrl}
+                  fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAYAAACOEfKtAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAJvSURBVHgB7doxbsIwFAbgx6FHQGrFARhgh45l6R06lrEjdGzTqVKlSpWqSlWqUpWqVKVSJSv5JVayTUwc2+/5pCgCO/b7bCfBAREREREREREREREREf2Tcy5jbcUYm7VtBwvuV+9s2/bDqd3KsmxtbXv+sHZZlqcxxsTMN+fcMef8mXNOrYhIBGAEYLMoygdQVS8i6oHEe5cKYAOgWIAH4ACgWEAJ4AGgWEAL4ACgWMAM4AGgWOAM4ACgWOAN4ACgWOAP4ACgWOAQ4ACgWOAR4ACgWOAS4ACgWOAT4ACgWOAU4ACgWOAV4ACgWOAW4ACgWOAX4ACgWOAY4ACgWOAZ4ACgWOAa4ACgWOAb4ACgWOAc4ACgWOAd4ACgWOAe4ACgWOAf4ACgWOAg4ACgWOAh4ACgWOAi4ACgWOAj4ACgWOAk4ACgWOAl4ACgWOAm4ACgWOAn4ACgWOAo4ACgWOAp4ACgWOAq4ACgWOAr4ACgWOAs4ACgWOAt4ACgWOAu4ACgWOAv4ACgWOAw4ACgWOAx4ACgWOAy4ACgWOAz4ACgWOA04ACgWOA14ACgWOA24ACgWOA34ACgWOA44ACgWOA54ACgWOA64ACgWOA74ACgWOA84ACgWOA94ACgWOA+4ACgWOA/4ACA"
+                />
+                {!member.photoUrl && (
+                  <Avatar
+                    icon={<UserOutlined />}
+                    size={80}
+                    style={{
+                      background: "#0D2145",
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                    }}
+                  />
+                )}
                 {isAdmin && (
                   <Upload
                     showUploadList={false}
@@ -267,7 +229,6 @@ export default function MemberDetailPage() {
                 </Tag>
               </Space>
             </Col>
-
             {isAdmin && (
               <Col>
                 <Button
@@ -282,9 +243,12 @@ export default function MemberDetailPage() {
         </Card>
       </div>
 
-      {/* Tabs */}
       <Card style={{ borderRadius: 12 }}>
-        <Tabs defaultActiveKey={activeTab} items={tabs} />
+        <Tabs
+          activeKey={activeTab}
+          onChange={(key) => setSearchParams({ tab: key })}
+          items={tabs}
+        />
       </Card>
 
       <EditMemberModal

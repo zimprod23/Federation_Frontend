@@ -196,7 +196,7 @@ function buildCardHtml(
 
   .wave {
     position:absolute; top:100px; left:0;
-    width:620px; height:80px;
+    width:860px; height:90px;
     background:linear-gradient(90deg,#0077c8 0%,#00a3e0 70%,transparent 100%);
     clip-path:polygon(0 0,78% 0,62% 100%,0 100%);
     z-index:1;
@@ -204,8 +204,8 @@ function buildCardHtml(
 
   /* Name — white on blue wave */
   .member-name {
-    position:absolute; top:148px; left:36px;
-    font-size:36px; font-weight:900; font-style:italic;
+    position:absolute; top:140px; left:10px;
+    font-size:30px; font-weight:900; font-style:italic;
     color:#ffffff; z-index:3; white-space:nowrap;
     text-shadow:0 2px 6px rgba(0,0,0,0.3);
   }
@@ -392,8 +392,8 @@ function buildCardHtml(
     .accent-lines { top:2mm; right:2mm; gap:0.7mm; }
     .accent-line  { height:0.6mm; }
 
-    .wave         { top:10mm; height:8mm; width:62mm; }
-    .member-name  { top:15mm; left:3.6mm; font-size:10pt; }
+    .wave         { top:10mm; height:10mm; width:82mm; }
+    .member-name  { top:15mm; left:2.6mm; font-size:8pt; }
     .name-deco    { top:20mm; left:3.6mm; width:34mm; gap:0.5mm; }
     .tri          { border-top-width:1mm; border-bottom-width:1mm; border-left-width:1.5mm; }
     .tri-sm       { border-top-width:0.7mm; border-bottom-width:0.7mm; border-left-width:1mm; }
@@ -458,7 +458,7 @@ function buildCardHtml(
 
   <div class="member-name">${member.fullName}</div>
 
-  <div class="name-deco">
+  <div class="name-deco" style="display:none">
     <div class="tri"></div>
     <div class="tri tri-sm"></div>
     <div class="deco-line"></div>
@@ -507,7 +507,7 @@ function buildCardHtml(
 
   <!-- Front QR — JWT verification token -->
   <div class="front-qr">
-    <img src="${frontQrUrl}" alt="QR Vérification" />
+    <img src="${backQrUrl}" alt="QR Vérification" />
   </div>
 
   <div class="bottom-stripe"></div>
