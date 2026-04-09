@@ -580,6 +580,7 @@ import {
   Spin,
   Badge,
   Divider,
+  Popconfirm,
 } from "antd";
 import {
   ArrowLeftOutlined,
@@ -588,6 +589,8 @@ import {
   TeamOutlined,
   BarChartOutlined,
   InfoCircleOutlined,
+  DeleteOutlined,
+  ClearOutlined,
 } from "@ant-design/icons";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -731,6 +734,29 @@ export default function CompetitionDetailPage() {
       setShowResult(false);
       resultForm.resetFields();
       setSelectedReg(null);
+    },
+    onError: (err: unknown) => void messageApi.error(getErrorMessage(err)),
+  });
+
+  // Inside CompetitionDetailPage function
+
+  const deleteEventMutation = useMutation({
+    mutationFn: (eventId: string) => competitionsApi.deleteEvent(id!, eventId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["competition", id] });
+      setSelectedEvent(null); // Reset selection after delete
+      void messageApi.success(t("common.success"));
+    },
+    onError: (err: unknown) => void messageApi.error(getErrorMessage(err)),
+  });
+
+  const clearResultsMutation = useMutation({
+    mutationFn: () => competitionsApi.clearResults(id!, selectedEvent!.id),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["results", selectedEvent?.id],
+      });
+      void messageApi.success(t("common.success"));
     },
     onError: (err: unknown) => void messageApi.error(getErrorMessage(err)),
   });
@@ -932,15 +958,32 @@ export default function CompetitionDetailPage() {
               title={t("competitions.events")}
               style={{ borderRadius: 10 }}
               extra={
-                <Button
-                  size="small"
-                  type="primary"
-                  icon={<PlusOutlined />}
-                  onClick={() => setShowAddEvent(true)}
-                  style={{ background: "#0D2145" }}
-                >
-                  Add
-                </Button>
+                <Space>
+                  {selectedEvent && (
+                    <Popconfirm
+                      title={t("common.confirmDelete")}
+                      onConfirm={() =>
+                        deleteEventMutation.mutate(selectedEvent.id)
+                      }
+                    >
+                      <Button
+                        size="small"
+                        danger
+                        type="text"
+                        icon={<DeleteOutlined />}
+                      />
+                    </Popconfirm>
+                  )}
+                  <Button
+                    size="small"
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    onClick={() => setShowAddEvent(true)}
+                    style={{ background: "#0D2145" }}
+                  >
+                    Add
+                  </Button>
+                </Space>
               }
             >
               <div
@@ -1065,15 +1108,40 @@ export default function CompetitionDetailPage() {
                         </Space>
                       ),
                       children: (
-                        <Table
-                          dataSource={results ?? []}
-                          columns={resultColumns}
-                          rowKey="id"
-                          size="small"
-                          pagination={false}
-                          locale={{ emptyText: "No results yet" }}
-                          scroll={{ x: 600 }}
-                        />
+                        <>
+                          <div
+                            style={{
+                              marginBottom: 16,
+                              display: "flex",
+                              justifyContent: "flex-end",
+                            }}
+                          >
+                            <Popconfirm
+                              title={t("competitions.confirmClearResults")}
+                              onConfirm={() => clearResultsMutation.mutate()}
+                              okText={t("common.yes")}
+                              cancelText={t("common.no")}
+                            >
+                              <Button
+                                danger
+                                ghost
+                                size="small"
+                                icon={<ClearOutlined />}
+                              >
+                                {t("competitions.clearResults")}
+                              </Button>
+                            </Popconfirm>
+                          </div>
+                          <Table
+                            dataSource={results ?? []}
+                            columns={resultColumns}
+                            rowKey="id"
+                            size="small"
+                            pagination={false}
+                            locale={{ emptyText: "No results yet" }}
+                            scroll={{ x: 600 }}
+                          />
+                        </>
                       ),
                     },
                   ]}
@@ -1248,66 +1316,35 @@ export default function CompetitionDetailPage() {
       </Modal>
 
       {/* ── Register Member Modal ───────────────────────────────────────────── */}
+      {/* Registration Modal */}
       <Modal
         open={showRegister}
-        title={`Register member — ${selectedEvent?.label}`}
-        onCancel={() => {
-          setShowRegister(false);
-          registerForm.resetFields();
-          setMemberSearch("");
-        }}
+        title={t("competitions.registerMember")}
+        onCancel={() => setShowRegister(false)}
         onOk={() => registerForm.submit()}
         confirmLoading={registerMutation.isPending}
-        okText={t("competitions.register")}
-        cancelText={t("common.cancel")}
       >
         <Form
           form={registerForm}
           layout="vertical"
-          onFinish={(v) => registerMutation.mutate(v.memberId as string)}
-          style={{ marginTop: 16 }}
+          onFinish={(values) => registerMutation.mutate(values.memberId)}
         >
           <Form.Item
             name="memberId"
-            label="Search member"
-            rules={[{ required: true, message: "Please select a member" }]}
+            label={t("common.member")}
+            rules={[{ required: true }]}
           >
             <Select
               showSearch
-              placeholder="Type name or license number..."
-              filterOption={false}
-              onSearch={(val) => setMemberSearch(val)}
+              placeholder={t("members.searchPlaceholder")}
+              filterOption={false} // CRITICAL: Tells AntD not to filter locally
+              onSearch={(value) => setMemberSearch(value)} // Updates the query key
               loading={searchingMembers}
-              notFoundContent={
-                memberSearch.length < 2
-                  ? "Type at least 2 characters"
-                  : searchingMembers
-                    ? "Searching..."
-                    : "No active members found"
-              }
-              optionLabelProp="label"
+              notFoundContent={searchingMembers ? <Spin size="small" /> : null}
             >
-              {memberResults?.items.map((member) => (
-                <Option
-                  key={member.id}
-                  value={member.id}
-                  label={`${member.fullName} — ${member.licenseNumber}`}
-                >
-                  <Space>
-                    <Tag
-                      color="geekblue"
-                      style={{ fontFamily: "monospace", fontSize: 11 }}
-                    >
-                      {member.licenseNumber}
-                    </Tag>
-                    <Text strong>{member.fullName}</Text>
-                    <Tag color="blue" style={{ fontSize: 11 }}>
-                      {t(`members.${member.category}`)}
-                    </Tag>
-                    <Tag style={{ fontSize: 11 }}>
-                      {t(`members.${member.gender}`)}
-                    </Tag>
-                  </Space>
+              {memberResults?.items.map((m) => (
+                <Option key={m.id} value={m.id}>
+                  {m.fullName} ({m.licenseNumber})
                 </Option>
               ))}
             </Select>

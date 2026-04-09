@@ -1,7 +1,7 @@
 import { Button } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
 import { MemberResponseDTO, CardResponseDTO } from "@/types";
-import FedLogo from "@/assets/fed-photo.png";
+import FedLogo from "@/assets/fed-logo2.png";
 import StartLogo from "@/assets/five.png";
 import QRCode from "qrcode";
 import dayjs from "dayjs";

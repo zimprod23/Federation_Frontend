@@ -271,6 +271,8 @@ export default function MembersPage() {
               <Option value="junior">{t("members.junior")}</Option>
               <Option value="u23">{t("members.u23")}</Option>
               <Option value="senior">{t("members.senior")}</Option>
+              <Option value="u19">{t("members.u19")}</Option>
+              <Option value="u15">{t("members.u15")}</Option>
             </Select>
           </Col>
         </Row>

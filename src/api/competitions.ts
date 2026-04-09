@@ -107,4 +107,15 @@ export const competitionsApi = {
     );
     return res.data.data!;
   },
+  // Add these to the competitionsApi object
+  deleteEvent: async (competitionId: string, eventId: string) => {
+    await client.delete(`/competitions/${competitionId}/events/${eventId}`);
+  },
+
+  clearResults: async (competitionId: string, eventId: string) => {
+    const res = await client.delete<ApiResponse<void>>(
+      `/competitions/${competitionId}/events/${eventId}/results`,
+    );
+    return res.data;
+  },
 };
