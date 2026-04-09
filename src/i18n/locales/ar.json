@@ -68,7 +68,9 @@
     "expired": "منتهي",
     "junior": "ناشئ",
     "u23": "أقل من 23",
-    "senior": "كبار"
+    "senior": "كبار",
+    "u15": "أقل من 15",
+    "u19": "أقل من 19"
   },
   "clubs": {
     "title": "الأندية",
@@ -97,7 +99,10 @@
     "draft": "مسودة",
     "open": "مفتوح",
     "closed": "مغلق",
-    "completed": "مكتمل"
+    "completed": "مكتمل",
+    "indoor": "داخلي",
+    "beachrowing": "تجديف الشاطئ",
+    "classic": "كلاسيكي"
   },
   "scanner": {
     "title": "مسح QR",

@@ -68,7 +68,9 @@
     "expired": "Expired",
     "junior": "Junior",
     "u23": "U23",
-    "senior": "Senior"
+    "senior": "Senior",
+    "u15": "U15",
+    "u19": "U19"
   },
   "clubs": {
     "title": "Clubs",
@@ -97,7 +99,10 @@
     "draft": "Draft",
     "open": "Open",
     "closed": "Closed",
-    "completed": "Completed"
+    "completed": "Completed",
+    "indoor": "Indoor",
+    "beachrowing": "Beachrowing",
+    "classic": "Classic"
   },
   "scanner": {
     "title": "QR Scanner",

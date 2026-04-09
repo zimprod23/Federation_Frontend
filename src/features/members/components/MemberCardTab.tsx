@@ -256,3 +256,34 @@ export default function MemberCardTab({ member }: Props) {
     </>
   );
 }
+
+/**
+ * 10:34:46 [vite] http proxy error: /api/v1/auth/login
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+10:34:59 [vite] http proxy error: /api/v1/clubs?limit=100
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+10:34:59 [vite] http proxy error: /api/v1/members?page=1&limit=20
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+10:35:00 [vite] http proxy error: /api/v1/members?page=1&limit=20
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) (x2)
+10:35:00 [vite] http proxy error: /api/v1/clubs?limit=100
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+10:35:02 [vite] http proxy error: /api/v1/clubs?page=1&limit=20
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+10:35:03 [vite] http proxy error: /api/v1/clubs?page=1&limit=20
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) (x2)
+ */

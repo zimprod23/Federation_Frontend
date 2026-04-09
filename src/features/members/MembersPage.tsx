@@ -47,6 +47,8 @@ const CATEGORY_COLORS = {
   junior: "blue",
   u23: "purple",
   senior: "gold",
+  u15: "volcano",
+  u19: "cyan",
 };
 
 export default function MembersPage() {

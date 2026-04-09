@@ -10,6 +10,34 @@ interface AuthState {
   isAuthenticated: () => boolean;
 }
 
+// export const useAuthStore = create<AuthState>()(
+//   persist(
+//     (set, get) => ({
+//       token: null,
+//       user: null,
+
+//       setAuth: (token, user) => {
+//         localStorage.setItem("token", token);
+//         set({ token, user });
+//       },
+
+//       clearAuth: () => {
+//         localStorage.removeItem("token");
+//         localStorage.removeItem("user");
+//         set({ token: null, user: null });
+//       },
+
+//       isAuthenticated: () => !!get().token,
+//     }),
+//     {
+//       name: "auth-storage",
+//       partialize: (state) => ({
+//         token: state.token,
+//         user: state.user,
+//       }),
+//     },
+//   ),
+// );
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
@@ -17,13 +45,14 @@ export const useAuthStore = create<AuthState>()(
       user: null,
 
       setAuth: (token, user) => {
-        localStorage.setItem("token", token);
+        // No need for manual localStorage.setItem here!
+        // Persist middleware handles it.
         set({ token, user });
       },
 
       clearAuth: () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
+        // Just clear the state. Persist middleware will
+        // automatically clear the 'auth-storage' key.
         set({ token: null, user: null });
       },
 
@@ -31,10 +60,6 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: "auth-storage",
-      partialize: (state) => ({
-        token: state.token,
-        user: state.user,
-      }),
     },
   ),
 );

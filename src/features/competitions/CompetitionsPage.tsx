@@ -251,6 +251,11 @@ export default function CompetitionsPage() {
                     {t("competitions.championship")}
                   </Option>
                   <Option value="friendly">{t("competitions.friendly")}</Option>
+                  <Option value="indoor">{t("competitions.indoor")}</Option>
+                  <Option value="beachrowing">
+                    {t("competitions.beachrowing")}
+                  </Option>
+                  <Option value="classic">{t("competitions.classic")}</Option>
                 </Select>
               </Form.Item>
             </Col>

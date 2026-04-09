@@ -123,7 +123,7 @@ export default function CreateMemberModal({ open, onClose, onSuccess }: Props) {
                 <Select>
                   <Option value="male">{t("members.male")}</Option>
                   <Option value="female">{t("members.female")}</Option>
-                  <Option value="other">{t("members.other")}</Option>
+                  {/* <Option value="other">{t("members.other")}</Option> */}
                 </Select>
               </Form.Item>
             </Col>

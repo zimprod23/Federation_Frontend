@@ -617,10 +617,13 @@ const TYPE_COLORS: Record<string, string> = {
   test_fisa: "purple",
   championship: "gold",
   friendly: "cyan",
+  indoor: "lime",
+  beachrowing: "blue",
+  classic: "magenta",
 };
 
-const DISTANCES = ["150m", "2000m", "6000m", "10000m", "15000m"];
-const CATEGORIES = ["junior", "u23", "senior"];
+const DISTANCES = ["150m", "2000m", "6000m", "10000m", "15000m", "20000m"];
+const CATEGORIES = ["junior", "u23", "senior", "u15", "u19"];
 
 export default function CompetitionDetailPage() {
   const { id } = useParams<{ id: string }>();

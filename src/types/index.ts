@@ -40,7 +40,7 @@ export interface PaginatedData<T> {
 }
 
 export type Gender = "male" | "female" | "other";
-export type Category = "junior" | "u23" | "senior";
+export type Category = "junior" | "u23" | "senior" | "u15" | "u19";
 
 export type MemberStatus = "active" | "pending" | "suspended" | "expired";
 export type ClubStatus = "active" | "pending" | "suspended";
@@ -157,9 +157,21 @@ export interface VerificationResponseDTO {
 }
 
 // ─── Competition ──────────────────────────────────────────────────────────────
-export type CompetitionType = "test_fisa" | "championship" | "friendly";
+export type CompetitionType =
+  | "test_fisa"
+  | "championship"
+  | "friendly"
+  | "indoor"
+  | "beachrowing"
+  | "classic";
 export type CompetitionStatus = "draft" | "open" | "closed" | "completed";
-export type EventDistance = "150m" | "2000m" | "6000m" | "10000m" | "15000m";
+export type EventDistance =
+  | "150m"
+  | "2000m"
+  | "6000m"
+  | "10000m"
+  | "15000m"
+  | "20000m";
 export type EventStatus = "scheduled" | "ongoing" | "completed";
 export type RegistrationStatus =
   | "registered"
