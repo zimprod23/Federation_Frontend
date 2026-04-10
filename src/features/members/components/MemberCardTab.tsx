@@ -26,6 +26,7 @@ import MemberCardDownload from "./MemberCardDownload";
 import { clubsApi } from "@/api";
 import MemberAttestationDownload from "./MemberAttestationDownload";
 import MemberCardDownloadV2 from "./MemberCardDownloadV2";
+import MemberCardDownloadV3 from "./MemberCardDownloadV3";
 
 const { Text, Title } = Typography;
 
@@ -196,10 +197,10 @@ export default function MemberCardTab({ member }: Props) {
                 )}
                 {card && (
                   <>
-                    <MemberCardDownloadV2
+                    <MemberCardDownloadV3
                       member={member}
                       card={card}
-                      clubName={club?.name ?? ""}
+                      clubName={club?.clubShort ?? ""}
                     />
                     <MemberAttestationDownload
                       member={member}

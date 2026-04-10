@@ -60,6 +60,7 @@ export interface MemberResponseDTO {
   height?: number;
   armSpan?: number;
   weight?: number;
+  position?: string;
   gender: Gender;
   category: Category;
   status: MemberStatus;
@@ -77,6 +78,7 @@ export interface CreateMemberDTO {
   phone?: string;
   cin?: string;
   height?: number;
+  position: PositionType;
   armSpan?: number;
   weight?: number;
   clubId?: string;
@@ -155,6 +157,15 @@ export interface VerificationResponseDTO {
     season: number;
   };
 }
+
+export type PositionType = "Coach" | "Athlete" | "President" | "Administrator";
+
+export const POSITION_OPTIONS: PositionType[] = [
+  "Coach",
+  "Athlete",
+  "President",
+  "Administrator",
+];
 
 // ─── Competition ──────────────────────────────────────────────────────────────
 export type CompetitionType =

@@ -13,7 +13,7 @@ import { useTranslation } from "react-i18next";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { membersApi } from "@/api/members";
 import { clubsApi } from "@/api/clubs";
-import { CreateMemberDTO } from "@/types";
+import { CreateMemberDTO, POSITION_OPTIONS } from "@/types";
 import dayjs from "dayjs";
 import { getErrorMessage } from "@/utils/error";
 
@@ -124,6 +124,23 @@ export default function CreateMemberModal({ open, onClose, onSuccess }: Props) {
                   <Option value="male">{t("members.male")}</Option>
                   <Option value="female">{t("members.female")}</Option>
                   {/* <Option value="other">{t("members.other")}</Option> */}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="position"
+                label={t("members.position")}
+                initialValue="Athlete"
+              >
+                <Select>
+                  {POSITION_OPTIONS.map((pos) => (
+                    <Option key={pos} value={pos}>
+                      {t(`members.positions.${pos.toLowerCase()}`, pos)}
+                    </Option>
+                  ))}
                 </Select>
               </Form.Item>
             </Col>

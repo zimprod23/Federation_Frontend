@@ -70,7 +70,12 @@
     "u23": "U23",
     "senior": "Senior",
     "u15": "U15",
-    "u19": "U19"
+    "u19": "U19",
+    "coach": "Coach",
+    "athlete": "Athlete",
+    "president": "President",
+    "administrator": "Administrator",
+    "position": "Position"
   },
   "clubs": {
     "title": "Clubs",
