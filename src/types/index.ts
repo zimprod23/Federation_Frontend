@@ -254,3 +254,38 @@ export interface ResultResponseDTO {
   memberFullName?: string;
   memberLicenseNumber?: string;
 }
+
+// ─── Member Competition History ───────────────────────────────────────────────
+export interface CompetitionResultDTO {
+  resultId: string;
+  eventId: string;
+  rank?: number;
+  medal?: "gold" | "silver" | "bronze";
+  distance?: EventDistance;
+  gender?: Gender;
+}
+
+export interface CompetitionHistoryItemDTO {
+  competitionId: string;
+  competitionName: string;
+  competitionType: CompetitionType;
+  competitionStatus: CompetitionStatus;
+  location: string;
+  city: string;
+  startDate: string;
+  endDate: string;
+  season: number;
+  description?: string;
+  results: CompetitionResultDTO[];
+}
+
+export interface MemberHistoryDTO {
+  memberId: string;
+  licenseNumber: string;
+  fullName: string;
+  totalCompetitions: number;
+  goldMedals: number;
+  silverMedals: number;
+  bronzeMedals: number;
+  competitionHistory: CompetitionHistoryItemDTO[];
+}

@@ -22,7 +22,8 @@
     "city": "Ville",
     "region": "Région",
     "date": "Date",
-    "season": "Saison"
+    "season": "Saison",
+    "noData": "Aucune donnée"
   },
   "auth": {
     "login": "Connexion",
@@ -77,7 +78,14 @@
     "administrator": "Administrateur",
     "position": "Position",
     "firstNameAr": "Prénom (AR)",
-    "lastNameAr": "Nom (AR)"
+    "lastNameAr": "Nom (AR)",
+    "history": "Historique",
+    "totalCompetitions": "Compétitions Totales",
+    "goldMedals": "Médailles d'Or",
+    "silverMedals": "Médailles d'Argent",
+    "bronzeMedals": "Médailles de Bronze",
+    "competitionHistory": "Historique des Compétitions",
+    "noCompetitionHistory": "Aucun historique de compétition"
   },
   "clubs": {
     "title": "Clubs",

@@ -6,6 +6,7 @@ import {
   CreateMemberDTO,
   UpdateMemberDTO,
   CardResponseDTO,
+  MemberHistoryDTO,
 } from "@/types";
 
 export interface ListMembersParams {
@@ -75,6 +76,13 @@ export const membersApi = {
     const res = await client.post<ApiResponse<CardResponseDTO>>(
       `/cards/${id}/generate`,
       { validFrom, validUntil },
+    );
+    return res.data.data!;
+  },
+
+  getHistory: async (id: string) => {
+    const res = await client.get<ApiResponse<MemberHistoryDTO>>(
+      `/members/${id}/history`,
     );
     return res.data.data!;
   },
