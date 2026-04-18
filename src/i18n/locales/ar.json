@@ -75,7 +75,9 @@
     "athlete": "رياضي",
     "president": "رئيس",
     "administrator": "مسؤول",
-    "position": "المنصب"
+    "position": "المنصب",
+    "firstNameAr": "الاسم الأول (عربي)",
+    "lastNameAr": "اسم العائلة (عربي)"
   },
   "clubs": {
     "title": "الأندية",

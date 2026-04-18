@@ -99,6 +99,12 @@ export default function MemberDetailPage() {
           <Descriptions.Item label={t("members.lastName")}>
             {member.lastName}
           </Descriptions.Item>
+          <Descriptions.Item label={t("members.firstNameAr")}>
+            {member.firstNameAr ?? "—"}
+          </Descriptions.Item>
+          <Descriptions.Item label={t("members.lastNameAr")}>
+            {member.lastNameAr ?? "—"}
+          </Descriptions.Item>
           <Descriptions.Item label={t("common.email")}>
             {member.email}
           </Descriptions.Item>

@@ -53,6 +53,8 @@ export interface MemberResponseDTO {
   firstName: string;
   lastName: string;
   email: string;
+  firstNameAr?: string;
+  lastNameAr?: string;
   dateOfBirth?: string;
   phone?: string;
   cin?: string;
@@ -72,6 +74,8 @@ export interface MemberResponseDTO {
 export interface CreateMemberDTO {
   firstName: string;
   lastName: string;
+  firstNameAr?: string;
+  lastNameAr?: string;
   dateOfBirth: string;
   gender: Gender;
   email: string;
@@ -87,6 +91,8 @@ export interface CreateMemberDTO {
 export interface UpdateMemberDTO {
   firstName?: string;
   lastName?: string;
+  firstNameAr?: string;
+  lastNameAr?: string;
   phone?: string;
   cin?: string;
   height?: number;
@@ -94,6 +100,7 @@ export interface UpdateMemberDTO {
   weight?: number;
   clubId?: string;
   status?: MemberStatus;
+  dateOfBirth?: string;
 }
 
 // ─── Club ─────────────────────────────────────────────────────────────────────

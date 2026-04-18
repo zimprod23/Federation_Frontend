@@ -102,6 +102,19 @@ export default function CreateMemberModal({ open, onClose, onSuccess }: Props) {
 
           <Row gutter={16}>
             <Col span={12}>
+              <Form.Item name="firstNameAr" label={t("members.firstNameAr")}>
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="lastNameAr" label={t("members.lastNameAr")}>
+                <Input />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
               <Form.Item
                 name="dateOfBirthPicker"
                 label={t("members.dateOfBirth")}

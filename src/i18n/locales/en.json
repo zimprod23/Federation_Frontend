@@ -75,7 +75,9 @@
     "athlete": "Athlete",
     "president": "President",
     "administrator": "Administrator",
-    "position": "Position"
+    "position": "Position",
+    "firstNameAr": "First name (AR)",
+    "lastNameAr": "Last name (AR)"
   },
   "clubs": {
     "title": "Clubs",
