@@ -86,4 +86,22 @@ export const membersApi = {
     );
     return res.data.data!;
   },
+
+  adjustLicenses: async (memberId?: string) => {
+    const res = await client.post<ApiResponse<{ adjustedCount: number }>>(
+      "/members/adjust-license",
+      null, // No body
+      { params: { clubId: memberId } }, // Pass memberId in query if exists
+    );
+    return res.data.data!;
+  },
+
+  importDatabase: async (formData: FormData): Promise<void> => {
+    // Replace with your actual axios/fetch instance logic
+    await client.post("/members/database/import", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  },
 };
