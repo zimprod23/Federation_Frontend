@@ -117,7 +117,9 @@
     "completed": "مكتمل",
     "indoor": "داخلي",
     "beachrowing": "تجديف الشاطئ",
-    "classic": "كلاسيكي"
+    "classic": "كلاسيكي",
+    "recordResult": "تسجيل النتيجة",
+    "selectEvent": "اختر حدثاً"
   },
   "scanner": {
     "title": "مسح QR",

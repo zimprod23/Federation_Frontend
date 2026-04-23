@@ -117,7 +117,9 @@
     "completed": "Completed",
     "indoor": "Indoor",
     "beachrowing": "Beachrowing",
-    "classic": "Classic"
+    "classic": "Classic",
+    "recordResult": "Record Result",
+    "selectEvent": "Select an event"
   },
   "scanner": {
     "title": "QR Scanner",

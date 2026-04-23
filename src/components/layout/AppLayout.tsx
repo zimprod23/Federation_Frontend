@@ -70,12 +70,12 @@ export default function AppLayout() {
       label: t("nav.competitions"),
       roles: ["super_admin", "federation_admin", "club_manager"],
     },
-    {
-      key: "/scanner",
-      icon: <ScanOutlined />,
-      label: t("nav.scanner"),
-      roles: ["super_admin", "federation_admin", "scanner"],
-    },
+    // {
+    //   key: "/scanner",
+    //   icon: <ScanOutlined />,
+    //   label: t("nav.scanner"),
+    //   roles: ["super_admin", "federation_admin", "scanner"],
+    // },
   ];
 
   const menuItems: MenuProps["items"] = allItems

@@ -117,7 +117,9 @@
     "completed": "Terminé",
     "indoor": "Indoor",
     "beachrowing": "Beachrowing",
-    "classic": "Classique"
+    "classic": "Classique",
+    "recordResult": "Enregistrer le résultat",
+    "selectEvent": "Sélectionner une épreuve"
   },
   "scanner": {
     "title": "Scanner QR",

@@ -234,6 +234,8 @@ export interface RegistrationResponseDTO {
   status: RegistrationStatus;
   lane?: number;
   bib?: number;
+  memberFullName?: string;
+  memberLicenseNumber?: string;
   registeredBy: string;
 }
 

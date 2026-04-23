@@ -118,4 +118,7 @@ export const competitionsApi = {
     );
     return res.data;
   },
+  delete: async (id: string) => {
+    await client.delete(`/competitions/${id}`);
+  },
 };

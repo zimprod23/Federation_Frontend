@@ -14,8 +14,14 @@ import {
   Input,
   Select,
   DatePicker,
+  Popconfirm,
 } from "antd";
-import { PlusOutlined, TrophyOutlined, EyeOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  TrophyOutlined,
+  EyeOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -72,6 +78,14 @@ export default function CompetitionsPage() {
     },
     onError: (err: unknown) => void messageApi.error(getErrorMessage(err)),
   });
+  const deleteMutation = useMutation({
+    mutationFn: competitionsApi.delete,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["competitions"] });
+      void messageApi.success(t("common.success"));
+    },
+    onError: (err: unknown) => void messageApi.error(getErrorMessage(err)),
+  });
 
   const columns = [
     {
@@ -120,13 +134,38 @@ export default function CompetitionsPage() {
     {
       title: t("common.actions"),
       key: "actions",
-      width: 80,
+      width: 120, // increased width to fit two buttons
       render: (_: unknown, r: CompetitionResponseDTO) => (
-        <Button
-          type="text"
-          icon={<EyeOutlined />}
-          onClick={() => navigate(`/competitions/${r.id}`)}
-        />
+        <Space>
+          <Button
+            type="text"
+            icon={<EyeOutlined />}
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent row click
+              navigate(`/competitions/${r.id}`);
+            }}
+          />
+          {/* Only show delete if NOT completed */}
+          {r.status !== "completed" && (
+            <Popconfirm
+              title={t("common.deleteConfirm")}
+              onConfirm={(e) => {
+                e?.stopPropagation();
+                deleteMutation.mutate(r.id);
+              }}
+              onCancel={(e) => e?.stopPropagation()}
+              okText={t("common.yes")}
+              cancelText={t("common.no")}
+            >
+              <Button
+                type="text"
+                danger
+                icon={<DeleteOutlined />}
+                onClick={(e) => e.stopPropagation()} // Prevent row click
+              />
+            </Popconfirm>
+          )}
+        </Space>
       ),
     },
   ];

@@ -38,11 +38,15 @@ export default function MemberAttestationDownload({
       ? `${baseUrl}${new URL(member.photoUrl).pathname}`
       : null;
 
-    const qrDataUrl = await QRCode.toDataURL(card.qrPayload, {
-      width: 180,
-      margin: 1,
-      color: { dark: "#8B0000", light: "#ffffff" },
-    });
+    // const qrDataUrl = await QRCode.toDataURL(card.qrPayload, {
+    //   width: 180,
+    //   margin: 1,
+    //   color: { dark: "#8B0000", light: "#ffffff" },
+    // });
+    const qrDataUrl = await QRCode.toDataURL(
+      `${member.fullName}\n${card.licenseNumber}\nSaison ${card.season}`,
+      { width: 200, margin: 1, color: { dark: "#1e6b1e", light: "#ffffff" } },
+    );
 
     const html = buildAttestationHtml(
       member,
