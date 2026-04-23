@@ -22,7 +22,8 @@
     "city": "المدينة",
     "region": "الجهة",
     "date": "التاريخ",
-    "season": "الموسم"
+    "season": "الموسم",
+    "noData": "لا توجد بيانات"
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -75,7 +76,16 @@
     "athlete": "رياضي",
     "president": "رئيس",
     "administrator": "مسؤول",
-    "position": "المنصب"
+    "position": "المنصب",
+    "firstNameAr": "الاسم الأول (عربي)",
+    "lastNameAr": "اسم العائلة (عربي)",
+    "history": "السجل",
+    "totalCompetitions": "إجمالي المسابقات",
+    "goldMedals": "الميداليات الذهبية",
+    "silverMedals": "الميداليات الفضية",
+    "bronzeMedals": "الميداليات البرونزية",
+    "competitionHistory": "سجل المسابقات",
+    "noCompetitionHistory": "لا يوجد سجل مسابقات"
   },
   "clubs": {
     "title": "الأندية",

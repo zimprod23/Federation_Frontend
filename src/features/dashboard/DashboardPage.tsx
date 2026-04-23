@@ -1,8 +1,32 @@
-import { Card, Row, Col, Statistic, Typography, Spin } from "antd";
-import { TeamOutlined, BankOutlined, TrophyOutlined } from "@ant-design/icons";
-import { useQuery } from "@tanstack/react-query";
+import {
+  Card,
+  Row,
+  Col,
+  Statistic,
+  Typography,
+  Spin,
+  message,
+  Button,
+  Modal,
+  Select,
+  Alert,
+  Space,
+} from "antd";
+import {
+  TeamOutlined,
+  BankOutlined,
+  TrophyOutlined,
+  SettingOutlined,
+  WarningOutlined,
+  DownloadOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { statsApi } from "@/api/stats";
+import { membersApi } from "@/api/members";
+import { useState, useMemo, useRef } from "react";
+import { getErrorMessage } from "@/utils/error";
 import {
   PieChart,
   Pie,
@@ -16,72 +40,61 @@ import {
   ResponsiveContainer,
   PieLabelRenderProps,
 } from "recharts";
+import { client } from "@/api";
 
 const { Title, Text } = Typography;
 
-// ── Palette ───────────────────────────────────────────────────────────────────
+// ── UI Configuration ─────────────────────────────────────────────────────────
 const STATUS_COLORS: Record<string, string> = {
   active: "#52c41a",
   pending: "#faad14",
   suspended: "#ff4d4f",
   expired: "#bfbfbf",
 };
-
 const CATEGORY_COLORS: Record<string, string> = {
   junior: "#0077c8",
   u23: "#003f8a",
   senior: "#00a3e0",
   u15: "#f68f3c",
 };
-
 const GENDER_COLORS: Record<string, string> = {
   male: "#003f8a",
   female: "#D9AE40",
   other: "#bfbfbf",
 };
 
-// ── Label helpers ─────────────────────────────────────────────────────────────
 const STATUS_LABELS: Record<string, string> = {
   active: "Actifs",
   pending: "En attente",
   suspended: "Suspendus",
   expired: "Expirés",
 };
-
 const CATEGORY_LABELS: Record<string, string> = {
   junior: "Junior",
   u23: "U23",
   senior: "Senior",
   u15: "U15",
 };
-
 const GENDER_LABELS: Record<string, string> = {
   male: "Masculin",
   female: "Féminin",
   other: "Autre",
 };
 
-// ── Custom donut label ────────────────────────────────────────────────────────
-const renderCustomLabel = (props: PieLabelRenderProps) => {
-  const { cx, cy, midAngle, innerRadius, outerRadius, percent } = props;
-
-  if (
-    cx === undefined ||
-    cy === undefined ||
-    midAngle === undefined ||
-    innerRadius === undefined ||
-    outerRadius === undefined ||
-    percent === undefined ||
-    Number(percent) < 0.05
-  )
-    return null;
-
+const renderCustomLabel = ({
+  cx,
+  cy,
+  midAngle,
+  innerRadius,
+  outerRadius,
+  percent,
+}: PieLabelRenderProps) => {
+  if (!percent || Number(percent) < 0.05) return null;
   const RADIAN = Math.PI / 180;
   const radius =
     Number(innerRadius) + (Number(outerRadius) - Number(innerRadius)) * 0.6;
   const x = Number(cx) + radius * Math.cos(-Number(midAngle) * RADIAN);
   const y = Number(cy) + radius * Math.sin(-Number(midAngle) * RADIAN);
-
   return (
     <text
       x={x}
@@ -89,7 +102,7 @@ const renderCustomLabel = (props: PieLabelRenderProps) => {
       fill="#fff"
       textAnchor="middle"
       dominantBaseline="central"
-      fontSize={13}
+      fontSize={12}
       fontWeight={700}
     >
       {`${(Number(percent) * 100).toFixed(0)}%`}
@@ -97,7 +110,7 @@ const renderCustomLabel = (props: PieLabelRenderProps) => {
   );
 };
 
-// ── Stat card ─────────────────────────────────────────────────────────────────
+// ── Reusable UI Components ──────────────────────────────────────────────────
 function StatCard({
   title,
   value,
@@ -111,11 +124,8 @@ function StatCard({
 }) {
   return (
     <Card
-      style={{
-        borderRadius: 12,
-        border: "none",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-      }}
+      bordered={false}
+      style={{ borderRadius: 12, boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}
     >
       <div
         style={{
@@ -131,9 +141,9 @@ function StatCard({
         />
         <div
           style={{
-            width: 52,
-            height: 52,
-            borderRadius: 12,
+            width: 48,
+            height: 48,
+            borderRadius: 10,
             background: iconBg,
             display: "flex",
             alignItems: "center",
@@ -147,7 +157,6 @@ function StatCard({
   );
 }
 
-// ── Chart card wrapper ────────────────────────────────────────────────────────
 function ChartCard({
   title,
   subtitle,
@@ -159,81 +168,191 @@ function ChartCard({
 }) {
   return (
     <Card
+      bordered={false}
       style={{
         borderRadius: 12,
-        border: "none",
         boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
         height: "100%",
       }}
-    >
-      <div style={{ marginBottom: 16 }}>
-        <Text strong style={{ fontSize: 15, color: "#0D2145" }}>
-          {title}
-        </Text>
-        {subtitle && (
-          <div>
-            <Text type="secondary" style={{ fontSize: 12 }}>
-              {subtitle}
-            </Text>
+      title={
+        <div style={{ padding: "4px 0" }}>
+          <div style={{ fontSize: 15, color: "#0D2145", fontWeight: 600 }}>
+            {title}
           </div>
-        )}
-      </div>
+          {subtitle && (
+            <div style={{ fontSize: 12, color: "#8c8c8c", fontWeight: 400 }}>
+              {subtitle}
+            </div>
+          )}
+        </div>
+      }
+    >
       {children}
     </Card>
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
+// ── Main Page Component ──────────────────────────────────────────────────────
 export default function DashboardPage() {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const [messageApi, contextHolder] = message.useMessage();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [isAdjustModalOpen, setIsAdjustModalOpen] = useState(false);
+  const [memberSearch, setMemberSearch] = useState("");
+  const [selectedMemberId, setSelectedMemberId] = useState<
+    string | "all" | undefined
+  >();
+
+  // ── Queries ──
   const { data: stats, isLoading } = useQuery({
     queryKey: ["dashboard-stats"],
     queryFn: statsApi.dashboard,
-    staleTime: 60_000,
   });
 
-  if (isLoading || !stats) {
+  const { data: memberResults, isFetching: searchingMembers } = useQuery({
+    queryKey: ["members", "search", memberSearch],
+    queryFn: () =>
+      membersApi.list({ search: memberSearch, limit: 10, status: "active" }),
+    enabled: memberSearch.length >= 2,
+  });
+
+  // ── Mutations ──
+  const adjustMutation = useMutation({
+    mutationFn: (id: string | "all") =>
+      membersApi.adjustLicenses(id === "all" ? undefined : id),
+    onSuccess: (data) => {
+      messageApi.success(`${data.adjustedCount || 0} licences synchronisées`);
+      setIsAdjustModalOpen(false);
+      setSelectedMemberId(undefined);
+      queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
+    },
+    onError: (err) => messageApi.error(getErrorMessage(err)),
+  });
+
+  // ── Database Operations ──
+  const handleExport = async () => {
+    try {
+      await membersApi.exportDatabase();
+      messageApi.success("Database exported successfully");
+    } catch (err) {
+      messageApi.error(getErrorMessage(err));
+    }
+  };
+
+  const handleImportDB = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    Modal.confirm({
+      title: "Remplacer la base de données ?",
+      icon: <WarningOutlined style={{ color: "#ff4d4f" }} />,
+      content:
+        "Attention : cette action écrasera toutes les données actuelles. L'application redémarrera après l'import.",
+      okText: "Confirmer l'import",
+      okType: "danger",
+      onOk: async () => {
+        try {
+          const formData = new FormData();
+          formData.append("database", file);
+          await membersApi.importDatabase(formData);
+          messageApi.success("Import réussi ! Redémarrage...");
+          setTimeout(() => window.location.reload(), 1000);
+        } catch (err) {
+          messageApi.error("Erreur lors de l'importation");
+        }
+      },
+    });
+    e.target.value = ""; // Reset input
+  };
+
+  // ── Chart Logic ──
+  const chartData = useMemo(() => {
+    if (!stats) return null;
+    return {
+      status: stats.membersByStatus.map((d) => ({
+        name: STATUS_LABELS[d.status] || d.status,
+        value: d.count,
+        color: STATUS_COLORS[d.status] || "#aaa",
+      })),
+      category: stats.membersByCategory.map((d) => ({
+        name: CATEGORY_LABELS[d.category] || d.category,
+        value: d.count,
+        color: CATEGORY_COLORS[d.category] || "#aaa",
+      })),
+      gender: stats.membersByGender.map((d) => ({
+        name: GENDER_LABELS[d.gender] || d.gender,
+        value: d.count,
+        color: GENDER_COLORS[d.gender] || "#aaa",
+      })),
+    };
+  }, [stats]);
+
+  if (isLoading || !stats)
     return (
       <div style={{ textAlign: "center", padding: 80 }}>
         <Spin size="large" />
       </div>
     );
-  }
-
-  // ── Prepare chart data ─────────────────────────────────────────────────────
-  const statusData = stats.membersByStatus.map((d) => ({
-    name: STATUS_LABELS[d.status] ?? d.status,
-    value: d.count,
-    color: STATUS_COLORS[d.status] ?? "#aaa",
-  }));
-
-  const categoryData = stats.membersByCategory.map((d) => ({
-    name: CATEGORY_LABELS[d.category] ?? d.category,
-    value: d.count,
-    color: CATEGORY_COLORS[d.category] ?? "#aaa",
-  }));
-
-  const genderData = stats.membersByGender.map((d) => ({
-    name: GENDER_LABELS[d.gender] ?? d.gender,
-    value: d.count,
-    color: GENDER_COLORS[d.gender] ?? "#aaa",
-  }));
 
   return (
     <div>
-      <Title level={3} style={{ marginBottom: 24 }}>
-        {t("nav.dashboard")}
-      </Title>
+      {contextHolder}
 
-      {/* ── Stat cards ──────────────────────────────────────────────────────── */}
+      {/* ── HEADER WITH ACTIONS ── */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 24,
+          flexWrap: "wrap",
+          gap: 16,
+        }}
+      >
+        <Title level={3} style={{ margin: 0 }}>
+          Tableau de Bord
+        </Title>
+
+        <Space size="middle">
+          <Button icon={<DownloadOutlined />} onClick={handleExport}>
+            Sauvegarder (Export)
+          </Button>
+
+          {/* <Button
+            icon={<UploadOutlined />}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            Restaurer (Import)
+          </Button> */}
+          {/* Hidden file input triggered by the button above */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            style={{ display: "none" }}
+            accept=".sqlite"
+            onChange={handleImportDB}
+          />
+
+          <Button
+            icon={<SettingOutlined />}
+            onClick={() => setIsAdjustModalOpen(true)}
+            type="primary"
+          >
+            Ajuster Licences
+          </Button>
+        </Space>
+      </div>
+
+      {/* ── TOTALS ── */}
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} sm={8}>
           <StatCard
-            title={t("nav.members")}
+            title="Membres"
             value={stats.totals.members}
             iconBg="#E6F0FF"
-            icon={<TeamOutlined style={{ fontSize: 24, color: "#0D2145" }} />}
+            icon={<TeamOutlined style={{ fontSize: 22, color: "#003f8a" }} />}
           />
         </Col>
         <Col xs={24} sm={8}>
@@ -241,112 +360,97 @@ export default function DashboardPage() {
             title="Clubs actifs"
             value={stats.totals.activeClubs}
             iconBg="#FFF8E6"
-            icon={<BankOutlined style={{ fontSize: 24, color: "#D9AE40" }} />}
+            icon={<BankOutlined style={{ fontSize: 22, color: "#D9AE40" }} />}
           />
         </Col>
         <Col xs={24} sm={8}>
           <StatCard
-            title="Compétitions ouvertes"
+            title="Compétitions"
             value={stats.totals.openCompetitions}
             iconBg="#F0FFF0"
-            icon={<TrophyOutlined style={{ fontSize: 24, color: "#52c41a" }} />}
+            icon={<TrophyOutlined style={{ fontSize: 22, color: "#52c41a" }} />}
           />
         </Col>
       </Row>
 
-      {/* ── Charts ──────────────────────────────────────────────────────────── */}
+      {/* ── ANALYTICS ── */}
       <Row gutter={[16, 16]}>
-        {/* 1 — Member status donut */}
         <Col xs={24} lg={8}>
-          <ChartCard
-            title="Statut des membres"
-            subtitle="Répartition par statut d'adhésion"
-          >
-            <ResponsiveContainer width="100%" height={260}>
-              <PieChart>
-                <Pie
-                  data={statusData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={65}
-                  outerRadius={100}
-                  paddingAngle={3}
-                  dataKey="value"
-                  labelLine={false}
-                  label={renderCustomLabel}
+          <ChartCard title="Répartition Statut">
+            <div style={{ height: 260, position: "relative" }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={chartData?.status}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={85}
+                    paddingAngle={5}
+                    dataKey="value"
+                    labelLine={false}
+                    label={renderCustomLabel}
+                  >
+                    {chartData?.status.map((entry, i) => (
+                      <Cell key={i} fill={entry.color} stroke="none" />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div
+                style={{
+                  position: "absolute",
+                  top: "42%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  textAlign: "center",
+                  pointerEvents: "none",
+                }}
+              >
+                <div
+                  style={{ fontSize: 22, fontWeight: 700, color: "#0D2145" }}
                 >
-                  {statusData.map((entry, i) => (
-                    <Cell key={i} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  // formatter={(value: unknown, name: unknown) => [value, name]}
-                  contentStyle={{
-                    borderRadius: 8,
-                    border: "none",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                  {stats.totals.members}
+                </div>
+                <div
+                  style={{
+                    fontSize: 10,
+                    color: "#888",
+                    textTransform: "uppercase",
                   }}
-                />
-                <Legend
-                  iconType="circle"
-                  iconSize={10}
-                  formatter={(value) => (
-                    <span style={{ fontSize: 12, color: "#555" }}>{value}</span>
-                  )}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-
-            {/* Total center overlay */}
-            <div
-              style={{
-                textAlign: "center",
-                marginTop: -240,
-                paddingTop: 90,
-                pointerEvents: "none",
-              }}
-            >
-              <div style={{ fontSize: 24, fontWeight: 700, color: "#0D2145" }}>
-                {stats.totals.members}
+                >
+                  Total
+                </div>
               </div>
-              <div style={{ fontSize: 11, color: "#888" }}>Total</div>
             </div>
-            <div style={{ height: 148 }} />
           </ChartCard>
         </Col>
 
-        {/* 2 — Category bar */}
         <Col xs={24} lg={8}>
-          <ChartCard title="Catégories d'âge" subtitle="Junior · U23 · Senior">
+          <ChartCard title="Répartition Catégorie">
             <ResponsiveContainer width="100%" height={260}>
               <BarChart
-                data={categoryData}
-                margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
-                barSize={48}
+                data={chartData?.category}
+                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                barSize={40}
               >
                 <XAxis
                   dataKey="name"
-                  tick={{ fontSize: 12, fill: "#666" }}
+                  tick={{ fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
                 />
                 <YAxis
-                  tick={{ fontSize: 11, fill: "#aaa" }}
+                  tick={{ fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
                   allowDecimals={false}
                 />
-                <Tooltip
-                  cursor={{ fill: "rgba(0,0,0,0.04)" }}
-                  // formatter={(value: unknown) => [value, "Membres"]}
-                  contentStyle={{
-                    borderRadius: 8,
-                    border: "none",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
-                  }}
-                />
-                <Bar dataKey="value" radius={[6, 6, 0, 0]} name="Membres">
-                  {categoryData.map((entry, i) => (
+                <Tooltip cursor={{ fill: "rgba(0,0,0,0.02)" }} />
+                <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                  {chartData?.category.map((entry, i) => (
                     <Cell key={i} fill={entry.color} />
                   ))}
                 </Bar>
@@ -355,49 +459,100 @@ export default function DashboardPage() {
           </ChartCard>
         </Col>
 
-        {/* 3 — Gender donut */}
         <Col xs={24} lg={8}>
-          <ChartCard
-            title="Répartition par genre"
-            subtitle="Masculin · Féminin"
-          >
+          <ChartCard title="Répartition Genre">
             <ResponsiveContainer width="100%" height={260}>
               <PieChart>
                 <Pie
-                  data={genderData}
+                  data={chartData?.gender}
                   cx="50%"
                   cy="50%"
-                  innerRadius={65}
-                  outerRadius={100}
-                  paddingAngle={3}
+                  innerRadius={60}
+                  outerRadius={85}
+                  paddingAngle={5}
                   dataKey="value"
                   labelLine={false}
                   label={renderCustomLabel}
                 >
-                  {genderData.map((entry, i) => (
-                    <Cell key={i} fill={entry.color} />
+                  {chartData?.gender.map((entry, i) => (
+                    <Cell key={i} fill={entry.color} stroke="none" />
                   ))}
                 </Pie>
-                <Tooltip
-                  // formatter={(value: unknown, name: unknown) => [value, name]}
-                  contentStyle={{
-                    borderRadius: 8,
-                    border: "none",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
-                  }}
-                />
-                <Legend
-                  iconType="circle"
-                  iconSize={10}
-                  formatter={(value) => (
-                    <span style={{ fontSize: 12, color: "#555" }}>{value}</span>
-                  )}
-                />
+                <Tooltip />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
               </PieChart>
             </ResponsiveContainer>
           </ChartCard>
         </Col>
       </Row>
+
+      {/* ── LICENSE ADJUSTMENT MODAL ── */}
+      <Modal
+        title="Mise à jour des licences"
+        open={isAdjustModalOpen}
+        onCancel={() => {
+          setIsAdjustModalOpen(false);
+          setSelectedMemberId(undefined);
+        }}
+        onOk={() => selectedMemberId && adjustMutation.mutate(selectedMemberId)}
+        confirmLoading={adjustMutation.isPending}
+        okButtonProps={{
+          disabled: !selectedMemberId,
+          danger: selectedMemberId === "all",
+        }}
+        okText={selectedMemberId === "all" ? "Lancer Globale" : "Confirmer"}
+        centered
+        destroyOnClose
+      >
+        <div style={{ marginBottom: 20 }}>
+          {selectedMemberId === "all" ? (
+            <Alert
+              message="Action Globale"
+              description="Synchronisation de toute la base. Cette opération peut impacter les statistiques actuelles."
+              type="warning"
+              showIcon
+            />
+          ) : (
+            <Text type="secondary">
+              Sélectionnez un membre spécifique ou l'option globale.
+            </Text>
+          )}
+        </div>
+
+        <Select
+          showSearch
+          style={{ width: "100%" }}
+          placeholder="Choisir un membre ou 'Tous'..."
+          filterOption={false}
+          onSearch={setMemberSearch}
+          onChange={setSelectedMemberId}
+          allowClear
+          size="large"
+        >
+          <Select.Option
+            key="all"
+            value="all"
+            style={{ fontWeight: 600, color: "#d48806" }}
+          >
+            <TeamOutlined /> Tous les membres (Global)
+          </Select.Option>
+
+          {memberResults?.items.map((m: any) => (
+            <Select.Option key={m.id} value={m.id}>
+              {m.firstName} {m.lastName}{" "}
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                ({m.licenseNumber})
+              </Text>
+            </Select.Option>
+          ))}
+
+          {searchingMembers && (
+            <Select.Option disabled key="loading">
+              <Spin size="small" /> Recherche...
+            </Select.Option>
+          )}
+        </Select>
+      </Modal>
     </div>
   );
 }

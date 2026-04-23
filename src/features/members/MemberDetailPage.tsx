@@ -22,6 +22,7 @@ import {
   UploadOutlined,
   IdcardOutlined,
   EditOutlined,
+  TrophyOutlined,
 } from "@ant-design/icons";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -30,6 +31,7 @@ import { membersApi } from "@/api/members";
 import { MemberStatus } from "@/types";
 import { useAuthStore } from "@/store/authStore";
 import MemberCardTab from "./components/MemberCardTab";
+import MemberHistoryTab from "./components/MemberHistoryTab";
 import EditMemberModal from "./components/EditMemberModal";
 import { getErrorMessage } from "@/utils/error";
 
@@ -99,6 +101,12 @@ export default function MemberDetailPage() {
           <Descriptions.Item label={t("members.lastName")}>
             {member.lastName}
           </Descriptions.Item>
+          <Descriptions.Item label={t("members.firstNameAr")}>
+            {member.firstNameAr ?? "—"}
+          </Descriptions.Item>
+          <Descriptions.Item label={t("members.lastNameAr")}>
+            {member.lastNameAr ?? "—"}
+          </Descriptions.Item>
           <Descriptions.Item label={t("common.email")}>
             {member.email}
           </Descriptions.Item>
@@ -142,6 +150,15 @@ export default function MemberDetailPage() {
         </span>
       ),
       children: <MemberCardTab member={member} />,
+    },
+    {
+      key: "history",
+      label: (
+        <span>
+          <TrophyOutlined /> {t("members.history")}
+        </span>
+      ),
+      children: <MemberHistoryTab memberId={id!} />,
     },
   ];
 

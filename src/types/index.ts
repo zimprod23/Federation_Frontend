@@ -53,6 +53,8 @@ export interface MemberResponseDTO {
   firstName: string;
   lastName: string;
   email: string;
+  firstNameAr?: string;
+  lastNameAr?: string;
   dateOfBirth?: string;
   phone?: string;
   cin?: string;
@@ -72,6 +74,8 @@ export interface MemberResponseDTO {
 export interface CreateMemberDTO {
   firstName: string;
   lastName: string;
+  firstNameAr?: string;
+  lastNameAr?: string;
   dateOfBirth: string;
   gender: Gender;
   email: string;
@@ -87,6 +91,8 @@ export interface CreateMemberDTO {
 export interface UpdateMemberDTO {
   firstName?: string;
   lastName?: string;
+  firstNameAr?: string;
+  lastNameAr?: string;
   phone?: string;
   cin?: string;
   height?: number;
@@ -94,6 +100,7 @@ export interface UpdateMemberDTO {
   weight?: number;
   clubId?: string;
   status?: MemberStatus;
+  dateOfBirth?: string;
 }
 
 // ─── Club ─────────────────────────────────────────────────────────────────────
@@ -246,4 +253,39 @@ export interface ResultResponseDTO {
   recordedBy: string;
   memberFullName?: string;
   memberLicenseNumber?: string;
+}
+
+// ─── Member Competition History ───────────────────────────────────────────────
+export interface CompetitionResultDTO {
+  resultId: string;
+  eventId: string;
+  rank?: number;
+  medal?: "gold" | "silver" | "bronze";
+  distance?: EventDistance;
+  gender?: Gender;
+}
+
+export interface CompetitionHistoryItemDTO {
+  competitionId: string;
+  competitionName: string;
+  competitionType: CompetitionType;
+  competitionStatus: CompetitionStatus;
+  location: string;
+  city: string;
+  startDate: string;
+  endDate: string;
+  season: number;
+  description?: string;
+  results: CompetitionResultDTO[];
+}
+
+export interface MemberHistoryDTO {
+  memberId: string;
+  licenseNumber: string;
+  fullName: string;
+  totalCompetitions: number;
+  goldMedals: number;
+  silverMedals: number;
+  bronzeMedals: number;
+  competitionHistory: CompetitionHistoryItemDTO[];
 }

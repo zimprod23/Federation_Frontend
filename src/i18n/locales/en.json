@@ -22,7 +22,8 @@
     "city": "City",
     "region": "Region",
     "date": "Date",
-    "season": "Season"
+    "season": "Season",
+    "noData": "No data"
   },
   "auth": {
     "login": "Login",
@@ -75,7 +76,16 @@
     "athlete": "Athlete",
     "president": "President",
     "administrator": "Administrator",
-    "position": "Position"
+    "position": "Position",
+    "firstNameAr": "First name (AR)",
+    "lastNameAr": "Last name (AR)",
+    "history": "History",
+    "totalCompetitions": "Total Competitions",
+    "goldMedals": "Gold Medals",
+    "silverMedals": "Silver Medals",
+    "bronzeMedals": "Bronze Medals",
+    "competitionHistory": "Competition History",
+    "noCompetitionHistory": "No competition history"
   },
   "clubs": {
     "title": "Clubs",

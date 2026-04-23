@@ -6,6 +6,7 @@ import {
   CreateMemberDTO,
   UpdateMemberDTO,
   CardResponseDTO,
+  MemberHistoryDTO,
 } from "@/types";
 
 export interface ListMembersParams {
@@ -77,5 +78,53 @@ export const membersApi = {
       { validFrom, validUntil },
     );
     return res.data.data!;
+  },
+
+  getHistory: async (id: string) => {
+    const res = await client.get<ApiResponse<MemberHistoryDTO>>(
+      `/members/${id}/history`,
+    );
+    return res.data.data!;
+  },
+
+  adjustLicenses: async (memberId?: string) => {
+    const res = await client.post<ApiResponse<{ adjustedCount: number }>>(
+      "/members/adjust-license",
+      {}, // No body
+      { params: { clubId: memberId } }, // Pass memberId in query if exists
+    );
+    return res.data.data!;
+  },
+
+  importDatabase: async (formData: FormData): Promise<void> => {
+    // Replace with your actual axios/fetch instance logic
+    await client.post("/members/database/import", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  },
+  exportDatabase: async () => {
+    const res = await client.get("/members/database/export", {
+      responseType: "blob", // REQUIRED
+    });
+
+    // Extract filename from header if available
+    const disposition = res.headers["content-disposition"];
+    let filename = "backup.sqlite";
+
+    if (disposition) {
+      const match = disposition.match(/filename="(.+)"/);
+      if (match) filename = match[1];
+    }
+
+    const url = window.URL.createObjectURL(new Blob([res.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", filename);
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
   },
 };

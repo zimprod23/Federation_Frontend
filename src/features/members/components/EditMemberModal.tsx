@@ -4,6 +4,7 @@ import {
   Input,
   Select,
   InputNumber,
+  DatePicker,
   Modal,
   Row,
   Col,
@@ -15,8 +16,14 @@ import { membersApi } from "@/api/members";
 import { clubsApi } from "@/api/clubs";
 import { MemberResponseDTO, UpdateMemberDTO, MemberStatus } from "@/types";
 import { getErrorMessage } from "@/utils/error";
+import dayjs from "dayjs";
+import { cleanDto } from "@/utils/dto";
 
 const { Option } = Select;
+
+interface EditMemberForm extends Omit<UpdateMemberDTO, "dateOfBirth"> {
+  dateOfBirthPicker?: dayjs.Dayjs;
+}
 
 interface Props {
   open: boolean;
@@ -32,7 +39,7 @@ export default function EditMemberModal({
   onSuccess,
 }: Props) {
   const { t } = useTranslation();
-  const [form] = Form.useForm<UpdateMemberDTO>();
+  const [form] = Form.useForm<EditMemberForm>();
   const [messageApi, contextHolder] = message.useMessage();
 
   const { data: clubs } = useQuery({
@@ -45,6 +52,8 @@ export default function EditMemberModal({
       form.setFieldsValue({
         firstName: member.firstName,
         lastName: member.lastName,
+        firstNameAr: member.firstNameAr,
+        lastNameAr: member.lastNameAr,
         phone: member.phone,
         cin: member.cin,
         height: member.height,
@@ -52,6 +61,9 @@ export default function EditMemberModal({
         weight: member.weight,
         clubId: member.clubId,
         status: member.status,
+        dateOfBirthPicker: member.dateOfBirth
+          ? dayjs(member.dateOfBirth)
+          : undefined,
       });
     }
   }, [open, member, form]);
@@ -65,6 +77,19 @@ export default function EditMemberModal({
     onError: (err: unknown) => void messageApi.error(getErrorMessage(err)),
   });
 
+  const onFinish = (values: EditMemberForm) => {
+    const { dateOfBirthPicker, ...rest } = values;
+
+    const cleaned = cleanDto(rest);
+
+    mutate({
+      ...cleaned,
+      dateOfBirth: dateOfBirthPicker
+        ? dateOfBirthPicker.format("YYYY-MM-DD")
+        : undefined,
+    });
+  };
+
   return (
     <>
       {contextHolder}
@@ -76,13 +101,13 @@ export default function EditMemberModal({
         confirmLoading={isPending}
         okText={t("common.save")}
         cancelText={t("common.cancel")}
-        width={640}
+        width={700}
         destroyOnClose
       >
         <Form
           form={form}
           layout="vertical"
-          onFinish={(values) => mutate(values)}
+          onFinish={onFinish}
           style={{ marginTop: 16 }}
         >
           <Row gutter={16}>
@@ -94,6 +119,34 @@ export default function EditMemberModal({
             <Col span={12}>
               <Form.Item name="lastName" label={t("members.lastName")}>
                 <Input />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="firstNameAr" label={t("members.firstNameAr")}>
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="lastNameAr" label={t("members.lastNameAr")}>
+                <Input />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="dateOfBirthPicker"
+                label={t("members.dateOfBirth")}
+              >
+                <DatePicker
+                  style={{ width: "100%" }}
+                  format="YYYY-MM-DD"
+                  disabledDate={(d) => d.isAfter(dayjs())}
+                />
               </Form.Item>
             </Col>
           </Row>
