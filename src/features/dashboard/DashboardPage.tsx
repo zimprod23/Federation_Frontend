@@ -230,10 +230,14 @@ export default function DashboardPage() {
   });
 
   // ── Database Operations ──
-  //  const handleExport = () => {
-  //   membersApi.exportDatabase();
-  //   messageApi.success("Préparation du téléchargement...");
-  // };
+  const handleExport = async () => {
+    try {
+      await membersApi.exportDatabase();
+      messageApi.success("Database exported successfully");
+    } catch (err) {
+      messageApi.error(getErrorMessage(err));
+    }
+  };
 
   const handleImportDB = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -310,9 +314,9 @@ export default function DashboardPage() {
         </Title>
 
         <Space size="middle">
-          {/* <Button icon={<DownloadOutlined />} onClick={handleExportDB}>
+          <Button icon={<DownloadOutlined />} onClick={handleExport}>
             Sauvegarder (Export)
-          </Button> */}
+          </Button>
 
           {/* <Button
             icon={<UploadOutlined />}

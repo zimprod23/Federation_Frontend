@@ -17,6 +17,7 @@ import { clubsApi } from "@/api/clubs";
 import { MemberResponseDTO, UpdateMemberDTO, MemberStatus } from "@/types";
 import { getErrorMessage } from "@/utils/error";
 import dayjs from "dayjs";
+import { cleanDto } from "@/utils/dto";
 
 const { Option } = Select;
 
@@ -78,8 +79,11 @@ export default function EditMemberModal({
 
   const onFinish = (values: EditMemberForm) => {
     const { dateOfBirthPicker, ...rest } = values;
+
+    const cleaned = cleanDto(rest);
+
     mutate({
-      ...rest,
+      ...cleaned,
       dateOfBirth: dateOfBirthPicker
         ? dateOfBirthPicker.format("YYYY-MM-DD")
         : undefined,
