@@ -59,6 +59,7 @@ export default function MembersPage() {
   const [messageApi, contextHolder] = message.useMessage();
 
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [status, setStatus] = useState<string | undefined>();
@@ -75,11 +76,11 @@ export default function MembersPage() {
   }, []);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["members", page, debouncedSearch, status, category],
+    queryKey: ["members", pageSize, page, debouncedSearch, status, category],
     queryFn: () =>
       membersApi.list({
         page,
-        limit: 20,
+        limit: pageSize,
         search: debouncedSearch || undefined,
         status: status as MemberStatus | undefined,
         category: category || undefined,
@@ -286,9 +287,13 @@ export default function MembersPage() {
           loading={isLoading}
           pagination={{
             current: page,
-            pageSize: 20,
+            pageSize: pageSize,
+            showSizeChanger: true,
+            pageSizeOptions: ["10", "20", "50", "100"],
             total: data?.total ?? 0,
-            onChange: setPage,
+            onChange: (page, pageSize) => {
+              (setPage(page), setPageSize(pageSize));
+            },
             showTotal: (total) => `${t("common.total")}: ${total}`,
           }}
           onRow={(record) => ({

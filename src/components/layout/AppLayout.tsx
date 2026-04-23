@@ -24,6 +24,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/store/authStore";
 import type { MenuProps } from "antd";
+import FedLogo from "@/assets/fed-logo2.png";
 
 const { Sider, Header, Content } = Layout;
 const { Text } = Typography;
@@ -139,22 +140,26 @@ export default function AppLayout() {
         >
           <div
             style={{
-              width: 36,
-              height: 36,
+              width: 150,
+              height: 150,
               borderRadius: "50%",
-              background: "#D9AE40",
-              display: "flex",
+              // background: "#D9AE40",
+              // display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontWeight: 700,
-              color: "#0D2145",
+              // fontWeight: 700,
+              // color: "#0D2145",
               fontSize: 16,
               flexShrink: 0,
             }}
           >
-            F
+            <img
+              src={FedLogo}
+              alt="F"
+              style={{ width: "100%", height: "100%", objectFit: "contain" }}
+            />
           </div>
-          {!collapsed && (
+          {/* {!collapsed && (
             <Text
               style={{
                 color: "#D9AE40",
@@ -165,7 +170,7 @@ export default function AppLayout() {
             >
               FNSM
             </Text>
-          )}
+          )} */}
         </div>
 
         <Menu

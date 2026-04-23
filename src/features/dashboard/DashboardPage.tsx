@@ -31,6 +31,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   junior: "#0077c8",
   u23: "#003f8a",
   senior: "#00a3e0",
+  u15: "#f68f3c",
 };
 
 const GENDER_COLORS: Record<string, string> = {
@@ -51,6 +52,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   junior: "Junior",
   u23: "U23",
   senior: "Senior",
+  u15: "U15",
 };
 
 const GENDER_LABELS: Record<string, string> = {
