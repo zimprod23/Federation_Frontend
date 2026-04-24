@@ -44,6 +44,7 @@ import {
   ResultResponseDTO,
 } from "@/types";
 import dayjs from "dayjs";
+import { cleanDto } from "@/utils/dto";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -857,9 +858,10 @@ export default function CompetitionDetailPage() {
         <Form
           form={resultForm}
           layout="vertical"
-          onFinish={(v) =>
-            resultMutation.mutate(v as Partial<ResultResponseDTO>)
-          }
+          onFinish={(v) => {
+            const cleaned = cleanDto(v);
+            resultMutation.mutate(cleaned as Partial<ResultResponseDTO>);
+          }}
           style={{ marginTop: 16 }}
         >
           <Divider style={{ fontSize: 12 }}>Performance</Divider>
