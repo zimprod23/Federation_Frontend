@@ -14,7 +14,7 @@ import { useTranslation } from "react-i18next";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { membersApi } from "@/api/members";
 import { clubsApi } from "@/api/clubs";
-import { MemberResponseDTO, UpdateMemberDTO, MemberStatus } from "@/types";
+import { MemberResponseDTO, UpdateMemberDTO } from /*MemberStatus*/ "@/types";
 import { getErrorMessage } from "@/utils/error";
 import dayjs from "dayjs";
 import { cleanDto } from "@/utils/dto";

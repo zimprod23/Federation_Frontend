@@ -1,84 +1,11 @@
-import { Button } from "antd";
-import { DownloadOutlined } from "@ant-design/icons";
-import { MemberResponseDTO, CardResponseDTO } from "@/types";
-import FedLogo from "@/assets/fed-logo2.png";
-import StartLogo from "@/assets/five.png";
-import QRCode from "qrcode";
-import dayjs from "dayjs";
-import { PositionType } from "@/types";
-
-interface Props {
-  member: MemberResponseDTO;
-  card: CardResponseDTO;
-  clubName?: string;
-}
-
-export default function MemberCardDownloadV3({
-  member,
-  card,
-  clubName,
-}: Props) {
-  const handleDownload = async () => {
-    const photoAbsolute = member.photoUrl
-      ? `http://localhost:3000${new URL(member.photoUrl).pathname}`
-      : null;
-
-    const frontQr = await QRCode.toDataURL(card.qrPayload, {
-      width: 200,
-      margin: 1,
-      color: { dark: "#7a0000", light: "#ffffff" },
-    });
-    const backQr = await QRCode.toDataURL(
-      `${member.fullName}\n${card.licenseNumber}\nSaison ${card.season}`,
-      { width: 200, margin: 1, color: { dark: "#1e6b1e", light: "#ffffff" } },
-    );
-
-    const html = buildCardHtml(
-      member,
-      card,
-      photoAbsolute,
-      clubName,
-      frontQr,
-      backQr,
-    );
-    const win = window.open("", "_blank");
-    if (!win) return;
-    win.document.write(html);
-    win.document.close();
-    win.onload = () => setTimeout(() => win.print(), 800);
-  };
-
-  return (
-    <Button
-      type="primary"
-      icon={<DownloadOutlined />}
-      onClick={() => void handleDownload()}
-      block
-      style={{
-        background: "#8B0000",
-        borderColor: "#8B0000",
-        color: "#fff",
-        fontWeight: 700,
-        height: 40,
-        borderRadius: 8,
-        marginTop: 12,
-      }}
-    >
-      Télécharger la carte
-    </Button>
-  );
-}
-
 // import { Button } from "antd";
 // import { DownloadOutlined } from "@ant-design/icons";
 // import { MemberResponseDTO, CardResponseDTO } from "@/types";
-// import QRCode from "qrcode";
-// import dayjs from "dayjs";
 // import FedLogo from "@/assets/fed-logo2.png";
 // import StartLogo from "@/assets/five.png";
-// import { useRef, useState, useEffect } from "react";
-// import * as htmlToImage from "html-to-image";
-// import jsPDF from "jspdf";
+// import QRCode from "qrcode";
+// import dayjs from "dayjs";
+// // import { PositionType } from "@/types";
 
 // interface Props {
 //   member: MemberResponseDTO;
@@ -92,103 +19,33 @@ export default function MemberCardDownloadV3({
 //   clubName,
 // }: Props) {
 //   const handleDownload = async () => {
-//     try {
-//       // ✅ Fix photo URL
-//       const photoAbsolute = member.photoUrl
-//         ? `http://192.168.1.212:5173${new URL(member.photoUrl).pathname}`
-//         : null;
+//     const photoAbsolute = member.photoUrl
+//       ? `http://localhost:3000${new URL(member.photoUrl).pathname}`
+//       : null;
 
-//       // ✅ Generate QR codes
-//       const frontQr = await QRCode.toDataURL(card.qrPayload, {
-//         width: 200,
-//         margin: 1,
-//         color: { dark: "#7a0000", light: "#ffffff" },
-//       });
+//     const frontQr = await QRCode.toDataURL(card.qrPayload, {
+//       width: 200,
+//       margin: 1,
+//       color: { dark: "#7a0000", light: "#ffffff" },
+//     });
+//     const backQr = await QRCode.toDataURL(
+//       `${member.fullName}\n${card.licenseNumber}\nSaison ${card.season}`,
+//       { width: 200, margin: 1, color: { dark: "#1e6b1e", light: "#ffffff" } },
+//     );
 
-//       const backQr = await QRCode.toDataURL(
-//         `${member.fullName}\n${card.licenseNumber}\nSaison ${card.season}`,
-//         {
-//           width: 200,
-//           margin: 1,
-//           color: { dark: "#1e6b1e", light: "#ffffff" },
-//         },
-//       );
-
-//       // ✅ Your original HTML
-//       const html = buildCardHtml(
-//         member,
-//         card,
-//         photoAbsolute,
-//         clubName,
-//         frontQr,
-//         backQr,
-//       );
-
-//       // 🔥 CREATE IFRAME (isolated environment)
-//       const iframe = document.createElement("iframe");
-//       iframe.style.position = "fixed";
-//       iframe.style.visibility = "hidden";
-//       iframe.style.pointerEvents = "none";
-//       iframe.style.width = "0";
-//       iframe.style.height = "0";
-//       iframe.style.border = "none";
-
-//       document.body.appendChild(iframe);
-
-//       const doc = iframe.contentDocument!;
-//       doc.open();
-//       doc.write(html);
-//       doc.close();
-
-//       // ⏳ Wait for iframe load
-//       await new Promise<void>((resolve) => {
-//         iframe.onload = () => resolve();
-//       });
-
-//       // ⏳ Wait for fonts (CRITICAL)
-//       if (doc.fonts) {
-//         await doc.fonts.ready;
-//       }
-
-//       // ⏳ Small delay for images
-//       await new Promise((r) => setTimeout(r, 300));
-
-//       const front = doc.querySelector(".front") as HTMLElement;
-//       //   const back = doc.querySelector(".back") as HTMLElement;
-
-//       if (!front /*|| !back*/) {
-//         throw new Error("Card elements not found");
-//       }
-
-//       // ✅ Convert to images
-//       const frontImg = await htmlToImage.toPng(front, {
-//         pixelRatio: 3,
-//         cacheBust: true,
-//       });
-
-//       //   const backImg = await htmlToImage.toPng(back, {
-//       //     pixelRatio: 3,
-//       //     cacheBust: true,
-//       //   });
-
-//       // ✅ Create PDF
-//       const pdf = new jsPDF({
-//         orientation: "landscape",
-//         unit: "mm",
-//         format: [85.6, 54],
-//       });
-
-//       pdf.addImage(frontImg, "PNG", 0, 0, 85.6, 54);
-//       //   pdf.addPage();
-//       //   pdf.addImage(backImg, "PNG", 0, 0, 85.6, 54);
-
-//       pdf.save(`card-${member.fullName}.pdf`);
-
-//       // 🧹 Cleanup
-//       document.body.removeChild(iframe);
-//     } catch (err) {
-//       console.error("Download failed:", err);
-//     }
+//     const html = buildCardHtml(
+//       member,
+//       card,
+//       photoAbsolute,
+//       clubName,
+//       frontQr,
+//       backQr,
+//     );
+//     const win = window.open("", "_blank");
+//     if (!win) return;
+//     win.document.write(html);
+//     win.document.close();
+//     win.onload = () => setTimeout(() => win.print(), 800);
 //   };
 
 //   return (
@@ -211,6 +68,149 @@ export default function MemberCardDownloadV3({
 //     </Button>
 //   );
 // }
+
+import { Button } from "antd";
+import { DownloadOutlined } from "@ant-design/icons";
+import { MemberResponseDTO, CardResponseDTO } from "@/types";
+import QRCode from "qrcode";
+import dayjs from "dayjs";
+import FedLogo from "@/assets/fed-logo2.png";
+import StartLogo from "@/assets/five.png";
+// import { useRef, useState, useEffect } from "react";
+import * as htmlToImage from "html-to-image";
+import jsPDF from "jspdf";
+
+interface Props {
+  member: MemberResponseDTO;
+  card: CardResponseDTO;
+  clubName?: string;
+}
+
+export default function MemberCardDownloadV3({
+  member,
+  card,
+  clubName,
+}: Props) {
+  const handleDownload = async () => {
+    try {
+      // ✅ Fix photo URL
+      const photoAbsolute = member.photoUrl
+        ? `http://192.168.1.212:5173${new URL(member.photoUrl).pathname}`
+        : null;
+
+      // ✅ Generate QR codes
+      const frontQr = await QRCode.toDataURL(card.qrPayload, {
+        width: 200,
+        margin: 1,
+        color: { dark: "#7a0000", light: "#ffffff" },
+      });
+
+      const backQr = await QRCode.toDataURL(
+        `${member.fullName}\n${card.licenseNumber}\nSaison ${card.season}`,
+        {
+          width: 200,
+          margin: 1,
+          color: { dark: "#1e6b1e", light: "#ffffff" },
+        },
+      );
+
+      // ✅ Your original HTML
+      const html = buildCardHtml(
+        member,
+        card,
+        photoAbsolute,
+        clubName,
+        frontQr,
+        backQr,
+      );
+
+      // 🔥 CREATE IFRAME (isolated environment)
+      const iframe = document.createElement("iframe");
+      iframe.style.position = "fixed";
+      iframe.style.visibility = "hidden";
+      iframe.style.pointerEvents = "none";
+      iframe.style.width = "0";
+      iframe.style.height = "0";
+      iframe.style.border = "none";
+
+      document.body.appendChild(iframe);
+
+      const doc = iframe.contentDocument!;
+      doc.open();
+      doc.write(html);
+      doc.close();
+
+      // ⏳ Wait for iframe load
+      await new Promise<void>((resolve) => {
+        iframe.onload = () => resolve();
+      });
+
+      // ⏳ Wait for fonts (CRITICAL)
+      if (doc.fonts) {
+        await doc.fonts.ready;
+      }
+
+      // ⏳ Small delay for images
+      await new Promise((r) => setTimeout(r, 300));
+
+      const front = doc.querySelector(".front") as HTMLElement;
+      //   const back = doc.querySelector(".back") as HTMLElement;
+
+      if (!front /*|| !back*/) {
+        throw new Error("Card elements not found");
+      }
+
+      // ✅ Convert to images
+      const frontImg = await htmlToImage.toPng(front, {
+        pixelRatio: 3,
+        cacheBust: true,
+      });
+
+      //   const backImg = await htmlToImage.toPng(back, {
+      //     pixelRatio: 3,
+      //     cacheBust: true,
+      //   });
+
+      // ✅ Create PDF
+      const pdf = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: [85.6, 54],
+      });
+
+      pdf.addImage(frontImg, "PNG", 0, 0, 85.6, 54);
+      //   pdf.addPage();
+      //   pdf.addImage(backImg, "PNG", 0, 0, 85.6, 54);
+
+      pdf.save(`card-${member.fullName}.pdf`);
+
+      // 🧹 Cleanup
+      document.body.removeChild(iframe);
+    } catch (err) {
+      console.error("Download failed:", err);
+    }
+  };
+
+  return (
+    <Button
+      type="primary"
+      icon={<DownloadOutlined />}
+      onClick={() => void handleDownload()}
+      block
+      style={{
+        background: "#8B0000",
+        borderColor: "#8B0000",
+        color: "#fff",
+        fontWeight: 700,
+        height: 40,
+        borderRadius: 8,
+        marginTop: 12,
+      }}
+    >
+      Télécharger la carte
+    </Button>
+  );
+}
 
 const CAT: Record<string, string> = {
   junior: "Junior",
@@ -237,17 +237,17 @@ const ICO = {
 };
 
 // Moroccan star SVG (centred in wave)
-const STAR_SVG = `<svg width="32" height="32" viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg"><polygon points="27,3 30.94,15.67 43.65,12.78 35.72,23.08 46.5,30.55 33.37,31.18 33.34,44.5 27,33.36 20.66,44.5 20.63,31.18 7.5,30.55 18.28,23.08 10.35,12.78 23.06,15.67" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.75)" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
+// const STAR_SVG = `<svg width="32" height="32" viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg"><polygon points="27,3 30.94,15.67 43.65,12.78 35.72,23.08 46.5,30.55 33.37,31.18 33.34,44.5 27,33.36 20.66,44.5 20.63,31.18 7.5,30.55 18.28,23.08 10.35,12.78 23.06,15.67" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.75)" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
 
 function buildCardHtml(
   member: MemberResponseDTO,
   card: CardResponseDTO,
   photoUrl: string | null,
   clubName: string | undefined,
-  frontQrUrl: string,
+  // frontQrUrl: string,
   backQrUrl: string,
   logoUrl: string = FedLogo,
-  starLogo: string = StartLogo,
+  // starLogo: string = StartLogo,
 ): string {
   const validUntil = dayjs(card.validUntil).format("DD/MM/YYYY");
   const validFrom = dayjs(card.validFrom).format("DD/MM/YYYY");
@@ -272,9 +272,9 @@ function buildCardHtml(
     : `<div class="pfb">${first.charAt(0)}</div>`;
 
   // Simple Q-curve waves
-  const FW = 856;
-  const fw = (y0: number, y1: number, fill: string, close = false) =>
-    `<path d="M0,${y0} Q${FW / 2},${y0 + (y1 - y0) * 2} ${FW},${y0} L${FW},${y1} Q${FW / 2},${y1 + (y1 - y0) * 2} 0,${y1} Z"${close ? ` L${FW},88 L0,88 Z` : ""} fill="${fill}"/>`;
+  // const FW = 856;
+  // const fw = (y0: number, y1: number, fill: string, close = false) =>
+  //   `<path d="M0,${y0} Q${FW / 2},${y0 + (y1 - y0) * 2} ${FW},${y0} L${FW},${y1} Q${FW / 2},${y1 + (y1 - y0) * 2} 0,${y1} Z"${close ? ` L${FW},88 L0,88 Z` : ""} fill="${fill}"/>`;
 
   return `<!DOCTYPE html>
 <html lang="fr"><head><meta charset="UTF-8"/><title>Carte — ${member.fullName}</title>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+// import { useState } from "react";
 import {
   Card,
   Button,
@@ -22,13 +22,13 @@ import { membersApi } from "@/api/members";
 import { MemberResponseDTO } from "@/types";
 import dayjs from "dayjs";
 import { getErrorMessage } from "@/utils/error";
-import MemberCardDownload from "./MemberCardDownload";
+// import MemberCardDownload from "./MemberCardDownload";
 import { clubsApi } from "@/api";
 import MemberAttestationDownload from "./MemberAttestationDownload";
-import MemberCardDownloadV2 from "./MemberCardDownloadV2";
+// import MemberCardDownloadV2 from "./MemberCardDownloadV2";
 import MemberCardDownloadV3 from "./MemberCardDownloadV3";
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 interface Props {
   member: MemberResponseDTO;
@@ -74,14 +74,14 @@ export default function MemberCardTab({ member }: Props) {
   };
 
   const tagConfig = STATUS_TAG[cardStatus];
-  const isCurrentlyValid = Boolean(
-    card &&
-    card.isValid &&
-    card.validFrom &&
-    card.validUntil &&
-    dayjs().isAfter(dayjs(card.validFrom)) &&
-    dayjs().isBefore(dayjs(card.validUntil)),
-  );
+  // const isCurrentlyValid = Boolean(
+  //   card &&
+  //   card.isValid &&
+  //   card.validFrom &&
+  //   card.validUntil &&
+  //   dayjs().isAfter(dayjs(card.validFrom)) &&
+  //   dayjs().isBefore(dayjs(card.validUntil)),
+  // );
 
   const generateMutation = useMutation({
     mutationFn: ({

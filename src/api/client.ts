@@ -31,10 +31,17 @@
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
 
+const API_BASE = "http://127.0.0.1:3000";
+
 const client = axios.create({
-  baseURL: "/api/v1",
+  baseURL: `${API_BASE}/api/v1`,
   headers: { "Content-Type": "application/json" },
 });
+
+// const client = axios.create({
+//   baseURL: "/api/v1",
+//   headers: { "Content-Type": "application/json" },
+// });
 
 client.interceptors.request.use((config) => {
   // Pull token directly from the store state for reliability

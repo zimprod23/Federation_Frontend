@@ -18,7 +18,7 @@ const queryClient = new QueryClient({
 });
 
 function Root() {
-  const isRtl = i18n.language === "ar";
+  // const isRtl = i18n.language === "ar";
 
   // Re-render when language changes
   const [dir, setDir] = React.useState<"ltr" | "rtl">(

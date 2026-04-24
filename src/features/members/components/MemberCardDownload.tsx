@@ -17,14 +17,14 @@ export default function MemberCardDownload({ member, card, clubName }: Props) {
       : null;
 
     // Generate front QR — verification payload (JWT token)
-    const frontQrDataUrl = await QRCode.toDataURL(card.qrPayload, {
-      width: 200,
-      margin: 1,
-      color: {
-        dark: "#003f8a",
-        light: "#ffffff",
-      },
-    });
+    // const frontQrDataUrl = await QRCode.toDataURL(card.qrPayload, {
+    //   width: 200,
+    //   margin: 1,
+    //   color: {
+    //     dark: "#003f8a",
+    //     light: "#ffffff",
+    //   },
+    // });
 
     // Generate back QR — embedded plain text (name + license + season)
     const backQrText = `${member.fullName}\n${card.licenseNumber}\nSaison ${card.season}`;
@@ -42,7 +42,7 @@ export default function MemberCardDownload({ member, card, clubName }: Props) {
       card,
       photoAbsolute,
       clubName,
-      frontQrDataUrl,
+      // frontQrDataUrl,
       backQrDataUrl,
     );
 
@@ -93,7 +93,7 @@ function buildCardHtml(
   card: CardResponseDTO,
   photoUrl: string | null,
   clubName: string | undefined,
-  frontQrUrl: string,
+  // frontQrUrl: string,
   backQrUrl: string,
 ): string {
   const validUntil = dayjs(card.validUntil).format("DD/MM/YYYY");

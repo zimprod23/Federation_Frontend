@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   Tabs,
@@ -117,6 +117,26 @@ export default function CompetitionDetailPage() {
     enabled: !!selectedEvent,
   });
 
+  useEffect(() => {
+    if (!showResult || !selectedReg) return;
+
+    const existing = results?.find((r) => r.registrationId === selectedReg.id);
+
+    if (existing) {
+      resultForm.setFieldsValue({
+        rank: existing.rank,
+        finalTime: existing.finalTime,
+        splitTime500: existing.splitTime500,
+        watts: existing.watts,
+        heartRate: existing.heartRate,
+        strokeRate: existing.strokeRate,
+        notes: existing.notes,
+        status: existing.status, // 👈 important if you add it in DTO
+      });
+    } else {
+      resultForm.resetFields();
+    }
+  }, [showResult, selectedReg, results]);
   // ── Mutations ──────────────────────────────────────────────────────────────
   const statusMutation = useMutation({
     mutationFn: (status: CompetitionStatus) =>
@@ -226,7 +246,7 @@ export default function CompetitionDetailPage() {
       title: t("common.name"),
       dataIndex: "memberFullName", // Adjust this key based on your DTO
       key: "memberFullName",
-      render: (v: string, r: RegistrationResponseDTO) => (
+      render: (v: string, _: RegistrationResponseDTO) => (
         <Text strong>{v || "Unknown Member"}</Text>
       ),
     },
@@ -881,6 +901,14 @@ export default function CompetitionDetailPage() {
               </Form.Item>
             </Col>
           </Row>
+          <Form.Item name="status" label="Status">
+            <Select placeholder="Select status">
+              <Option value="finished">Finished</Option>
+              <Option value="dns">DNS</Option>
+              <Option value="dnf">DNF</Option>
+              <Option value="dq">DQ</Option>
+            </Select>
+          </Form.Item>
 
           <Form.Item name="notes" label="Notes">
             <Input.TextArea rows={2} />

@@ -19,10 +19,10 @@ import {
   SettingOutlined,
   WarningOutlined,
   DownloadOutlined,
-  UploadOutlined,
+  // UploadOutlined,
 } from "@ant-design/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useTranslation } from "react-i18next";
+// import { useTranslation } from "react-i18next";
 import { statsApi } from "@/api/stats";
 import { membersApi } from "@/api/members";
 import { useState, useMemo, useRef } from "react";
@@ -40,7 +40,7 @@ import {
   ResponsiveContainer,
   PieLabelRenderProps,
 } from "recharts";
-import { client } from "@/api";
+// import { client } from "@/api";
 
 const { Title, Text } = Typography;
 
@@ -194,7 +194,7 @@ function ChartCard({
 
 // ── Main Page Component ──────────────────────────────────────────────────────
 export default function DashboardPage() {
-  const { t } = useTranslation();
+  // const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [messageApi, contextHolder] = message.useMessage();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -236,6 +236,15 @@ export default function DashboardPage() {
     try {
       await membersApi.exportDatabase();
       messageApi.success("Database exported successfully");
+    } catch (err) {
+      messageApi.error(getErrorMessage(err));
+    }
+  };
+
+  const handleExportUploads = async () => {
+    try {
+      await membersApi.exportUploads();
+      messageApi.success("Uploads exported successfully");
     } catch (err) {
       messageApi.error(getErrorMessage(err));
     }
@@ -318,6 +327,9 @@ export default function DashboardPage() {
         <Space size="middle">
           <Button icon={<DownloadOutlined />} onClick={handleExport}>
             Sauvegarder (Export)
+          </Button>
+          <Button icon={<DownloadOutlined />} onClick={handleExportUploads}>
+            Exporter les photos
           </Button>
 
           {/* <Button

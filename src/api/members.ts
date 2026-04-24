@@ -127,4 +127,27 @@ export const membersApi = {
     link.click();
     link.remove();
   },
+  exportUploads: async () => {
+    const res = await client.get("/members/database/export-uploads", {
+      responseType: "blob",
+    });
+
+    const disposition = res.headers["content-disposition"];
+    let filename = "uploads-backup.zip";
+
+    if (disposition) {
+      const match = disposition.match(/filename="(.+)"/);
+      if (match) filename = match[1];
+    }
+
+    const url = window.URL.createObjectURL(new Blob([res.data]));
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.setAttribute("download", filename);
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  },
 };

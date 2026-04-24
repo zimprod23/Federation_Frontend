@@ -252,6 +252,7 @@ export interface ResultResponseDTO {
   heartRate?: number;
   watts?: number;
   notes?: string;
+  status?: RegistrationStatus;
   recordedBy: string;
   memberFullName?: string;
   memberLicenseNumber?: string;

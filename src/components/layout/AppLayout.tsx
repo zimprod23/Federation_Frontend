@@ -17,7 +17,7 @@ import {
   LogoutOutlined,
   UserOutlined,
   GlobalOutlined,
-  ScanOutlined,
+  // ScanOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
 } from "@ant-design/icons";
