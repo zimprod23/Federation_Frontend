@@ -32,4 +32,7 @@ export const clubsApi = {
     );
     return res.data.data!;
   },
+  delete: async (id: string) => {
+    await client.delete(`/clubs/${id}`);
+  },
 };

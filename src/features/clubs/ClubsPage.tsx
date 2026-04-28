@@ -16,12 +16,14 @@ import {
   Select,
   Descriptions,
   Divider,
+  Popconfirm,
 } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
   BankOutlined,
   EyeOutlined,
+  DeleteOutlined,
 } from "@ant-design/icons";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -92,6 +94,15 @@ export default function ClubsPage() {
           status: statusForm.getFieldValue("status") as ClubStatus,
         });
       }
+    },
+    onError: (err: unknown) => void messageApi.error(getErrorMessage(err)),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: clubsApi.delete,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["clubs"] });
+      void messageApi.success(t("common.success"));
     },
     onError: (err: unknown) => void messageApi.error(getErrorMessage(err)),
   });
@@ -186,6 +197,23 @@ export default function ClubsPage() {
               }}
             />
           </Tooltip>
+          <Popconfirm
+            title={t("common.deleteConfirm")}
+            onConfirm={(e) => {
+              e?.stopPropagation();
+              deleteMutation.mutate(r.id);
+            }}
+            onCancel={(e) => e?.stopPropagation()}
+            okText={t("common.yes")}
+            cancelText={t("common.no")}
+          >
+            <Button
+              type="text"
+              danger
+              icon={<DeleteOutlined />}
+              onClick={(e) => e.stopPropagation()} // Prevent row click
+            />
+          </Popconfirm>
         </Space>
       ),
     },
